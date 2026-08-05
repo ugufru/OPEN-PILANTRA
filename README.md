@@ -81,8 +81,9 @@ The BR and EN images are byte-identical in structure and differ only in segment
 sizes — the English build is a translation of the `DATA` blocks, not a
 re-architecture.
 
-The demo loops forever: it plays 10 scenes, returns to the intro, and starts
-over.
+The demo never terminates: it plays a run of scenes, drops back to the intro,
+and starts over. (How many scenes per cycle is not simply ten — see
+[Scene director](#scene-director-lines-470490).)
 
 ---
 
@@ -118,8 +119,9 @@ That one choice buys everything else:
 - **512 bytes per screen**, against 6144 for PMODE 4. A full 64×28 background
   map is 896 bytes, so four backgrounds plus ten 15×10 portraits plus three
   props all fit in the program's data segment with room to spare.
-- **8 real colors, no artifacting.** No color fringing to design around, and it
-  looks identical on NTSC and PAL.
+- **8 real colors, no artifacting.** No color fringing to design around, and the
+  palette is identical on NTSC and PAL. (The *timing* is not — see the run
+  notes above.)
 - **Redrawing is cheap enough to do from BASIC.** This is the whole game. At
   64×32 the art has to be bold silhouettes with one accent color per figure —
   and the art sheet leans into that rather than fighting it.
@@ -219,7 +221,7 @@ IF sc=1 THEN: GOSUB dialog   : sc=RND(5)
 IF sc=2 THEN: GOSUB object   : sc=RND(5)
               IF sc>=1 THEN sc=1                        :REM → prefers dialog
 INC c
-IF c=10 THEN GOTO intro                                 :REM reset every 10 scenes
+IF c=10 THEN GOTO intro                                 :REM reset (see below)
 ```
 
 Objects almost always hand off to dialogue; dialogue leans back toward a
@@ -261,6 +263,10 @@ scene length. The writing is deliberately non-sequitur, which is why it holds
 together no matter what pairs up — every line is a plausible reply to every
 other line.
 
+Confirmed empirically: a captured run put Isac on the right saying
+"PROCEDURAL / OLD WAY", which is exactly the `DATA` pair at line 225 of
+`OPIL-source.bas`.
+
 ### Speech vs. thought
 
 `z=7` selects a **solo** scene: one character alone, thinking. The same
@@ -292,7 +298,15 @@ whole difference between the two draw routines.
 
 # Known issues and unfinished work
 
-Tracked in `issues.jsonl`. Highlights:
+Tracked in `issues.jsonl` — one JSON object per line, with `id`, `summary`,
+`description`, `type`, `status` (open / in-progress / done), `priority` and
+`file`. Read it with `jq -c . issues.jsonl`.
+
+**Nothing here can be fixed yet.** There is no documented ugBASIC command line
+for rebuilding the `.dsk` images from `OPIL-source.bas`, so no source change can
+be tested. That is issue #6, and it blocks #1, #2 and #4.
+
+The rest:
 
 - **The sentence counter is broken.** The author's own last line in the source:
   *"DEFEITO NO CONTADOR DE FRASE, CORTA RAPIDO E NAO TERMINA"* — the phrase
@@ -307,6 +321,12 @@ Tracked in `issues.jsonl`. Highlights:
   there's a conspicuous block of blank lines where more were planned.
 - **Portrait arrays are over-dimensioned.** `DIM mano(176)` etc., but the draw
   loop only reaches index `14+9*16 = 158`.
+- **The scene counter counts iterations, not scenes** — see
+  [Scene director](#scene-director-lines-470490). Open as a question rather than
+  a bug, pending the author's intent.
+- **Reference captures are incomplete.** `docs/screens/` is missing a
+  speech-bubble frame and an `HSCROLL` cutscene, the two most illustrative
+  shots.
 
 ## Credits
 
