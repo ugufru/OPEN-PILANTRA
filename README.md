@@ -21,26 +21,51 @@ in it affordable from a compiled BASIC.
 | `OPEN PILANTRA.pdf` | Design document / character art sheet. |
 | `517989023_*.jpg` | Character portraits paired with their BR dialogue tables. |
 
+![OPEN PILANTRA title card](docs/screens/title.png)
+
 ## Running it
 
 Requires [XRoar](https://www.6809.org.uk/xroar/). Both images are RS-DOS disks,
-so you need a Disk BASIC machine:
+so you need the disk controller cartridge explicitly:
 
 ```sh
-xroar -m coco2b -load-fd0 OPIL-EN.dsk
+xroar -machine coco2bus -cart rsdos -load-fd0 OPIL-EN.dsk
 ```
 
-Then at the `OK` prompt:
+Then at the `OK` prompt, `RUN"LOADER"`.
 
-```basic
-RUN"LOADER"
-```
-
-To skip the prompt, XRoar can type it for you:
+Verified one-liner that boots, autoruns and quits on its own:
 
 ```sh
-xroar -m coco2b -load-fd0 OPIL-EN.dsk -type 'RUN"LOADER"\n'
+xroar -machine coco2bus -cart rsdos -load-fd0 OPIL-EN.dsk \
+      -ao null -timeout 120 -type 'RUN"LOADER"\r'
 ```
+
+Notes on the flags, learned the hard way:
+
+- **`-cart rsdos` is required.** Without it the machine has no disk controller
+  and the image never mounts.
+- **`coco2bus`, not `coco2b`.** The unsuffixed profiles are PAL; `…us` are NTSC.
+  All the `WAIT nnn MILLISECONDS` pacing in the source was authored against a
+  60 Hz machine, so PAL runs everything ~17% slow.
+- **`\r`, not `\n`,** in `-type` — it's the Enter key, not a newline.
+- `-ao null` keeps it silent (the demo has no audio anyway) and makes the run
+  safe to launch from a script.
+- `-timeout N` bounds the run, so it's unattended-safe. The demo itself never
+  terminates.
+
+Loading takes ~10 s of emulated time before the intro starts. The intro runs
+FUED.NET → ugBASIC splash → title card, roughly 25 s, and only then does the
+main loop begin.
+
+## What it looks like
+
+| | |
+| --- | --- |
+| ![ugBASIC splash](docs/screens/intro-ugbasic.png) | ![Two-character dialogue](docs/screens/dialogue.png) |
+| The `ugb()` splash. The horizontal colour bands are pure SG4 — read the colour nibble changing by row. | Minhocossul and Isac. Two 15×10 portraits, drawn once, then only the mouth cells move. |
+| ![Solo scene mid-draw](docs/screens/solo-thought.png) | ![Title card](docs/screens/title.png) |
+| Caught mid-draw: Elektra painting in tile by tile while Isac is already up. The draw is visibly progressive, and it reads as a deliberate wipe. | The `til()` title, 14×7 cells of solid white. |
 
 ### What's on the disk
 
@@ -199,6 +224,14 @@ IF c=10 THEN GOTO intro                                 :REM reset every 10 scen
 
 Objects almost always hand off to dialogue; dialogue leans back toward a
 cutscene. The result reads like edited film rather than a shuffle.
+
+**The three `IF`s fall through within a single iteration.** They're sequential
+tests, not an `ELSE` chain, so when the cutscene block sets `sc=1` the *very
+next* `IF sc=1` fires in the same pass. One trip round the loop can therefore
+play cutscene → dialogue → object back-to-back. That's almost certainly
+deliberate — it's what produces multi-beat sequences instead of one isolated
+scene per iteration — but it does mean `c` counts **iterations, not scenes**, so
+`IF c=10 THEN GOTO intro` comes around considerably sooner than "ten scenes".
 
 ### Dialogue generation (lines 671–690)
 
