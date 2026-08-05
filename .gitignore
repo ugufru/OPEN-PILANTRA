@@ -1,0 +1,15 @@
+# macOS
+.DS_Store
+
+# XRoar
+*.sna
+*.snap
+*.wav
+*.cas
+screenshot*.png
+
+# ugBASIC build output
+build/
+*.asm
+*.lst
+*.map
