@@ -1,0 +1,885 @@
+{
+  "_comment": "Dialogue for OPEN PILANTRA. Each balloon is [line1, line2]; use \" \" (a single space) for a blank second line, not \"\". Constraints: 20 balloons per character, max 13 characters per line. Edit here, then: python3 tools/dialogue.py inject OPIL-source.bas story/dialogue.json",
+  "characters": [
+    {
+      "label": "manot",
+      "name": "Mano Courier",
+      "side": "left",
+      "slot": 0,
+      "balloons": [
+        [
+          "AS I SAID",
+          "ALL FINE"
+        ],
+        [
+          "HM, I THINK",
+          "IT WENT SOUTH"
+        ],
+        [
+          "THEY DIDN'T",
+          "SAY ANYTHING"
+        ],
+        [
+          "SOLVED",
+          " "
+        ],
+        [
+          "IT CAN BE A",
+          "TRAP!"
+        ],
+        [
+          "ON TIME!",
+          " "
+        ],
+        [
+          "NOBODY LEFT",
+          "ALIVE"
+        ],
+        [
+          "THAT WAS",
+          "FIVE DAYS AGO"
+        ],
+        [
+          "IT MAY FAIL",
+          " "
+        ],
+        [
+          "COMPLICATED",
+          "SITUATION!"
+        ],
+        [
+          "NOT POSSIBLE",
+          " "
+        ],
+        [
+          "I BELIEVE IT",
+          "WORKS!"
+        ],
+        [
+          "IS IT?",
+          " "
+        ],
+        [
+          "IT IS BEING",
+          "REQUESTED"
+        ],
+        [
+          "OK",
+          " "
+        ],
+        [
+          "WILL CHECK",
+          "THAT"
+        ],
+        [
+          "DON'T TRUST",
+          " "
+        ],
+        [
+          " ",
+          "ALTERNATIVES?"
+        ],
+        [
+          "AGAIN?",
+          " "
+        ],
+        [
+          "CONSIDER IT",
+          "DONE"
+        ]
+      ]
+    },
+    {
+      "label": "johnt",
+      "name": "John Trecks",
+      "side": "left",
+      "slot": 1,
+      "balloons": [
+        [
+          "CAN'T BE",
+          "DONE"
+        ],
+        [
+          "SHADY DUDE",
+          " "
+        ],
+        [
+          "'IM GETTING",
+          "OUT OF HERE"
+        ],
+        [
+          "SMOOTH",
+          " "
+        ],
+        [
+          "NO RETURN",
+          "YET"
+        ],
+        [
+          "NO DEAL",
+          " "
+        ],
+        [
+          "I'M OUT",
+          " "
+        ],
+        [
+          "FUNKY!",
+          " "
+        ],
+        [
+          "NO CASH?",
+          " "
+        ],
+        [
+          "AT LEAST",
+          "FIVE HUNDRED"
+        ],
+        [
+          "AROUND 2PM",
+          " "
+        ],
+        [
+          "VERY",
+          "CLOSE"
+        ],
+        [
+          "WON'T WORK",
+          " "
+        ],
+        [
+          "LIES!",
+          " "
+        ],
+        [
+          "GONNA GO",
+          "BAD"
+        ],
+        [
+          "WHAT IF NO",
+          "FUN?"
+        ],
+        [
+          "THEY WAY IT ",
+          "GOES..."
+        ],
+        [
+          "DON'T COUNT",
+          "ON ME"
+        ],
+        [
+          "GOING THAT",
+          "WAY"
+        ],
+        [
+          "ONLY IF ",
+          "CERTAIN"
+        ]
+      ]
+    },
+    {
+      "label": "elect",
+      "name": "Elektra",
+      "side": "left",
+      "slot": 2,
+      "balloons": [
+        [
+          "GONNA BE",
+          "SWEET"
+        ],
+        [
+          "IT WAS",
+          "REGISTERED"
+        ],
+        [
+          "VERY",
+          "POSSIBLE"
+        ],
+        [
+          "OK",
+          " "
+        ],
+        [
+          "WILL BE",
+          "CONFISCATED"
+        ],
+        [
+          "ANY",
+          "TROUBLE?"
+        ],
+        [
+          "ARTFACTS?",
+          " "
+        ],
+        [
+          "A BIT TOO",
+          "TOUGH"
+        ],
+        [
+          "WORTH IT?",
+          " "
+        ],
+        [
+          "THAT IS A",
+          "FACT "
+        ],
+        [
+          "LOADING",
+          " "
+        ],
+        [
+          "WITH LESS",
+          "DEMANDS"
+        ],
+        [
+          "THEY WERE",
+          "OPENING"
+        ],
+        [
+          "VERY FAST",
+          " "
+        ],
+        [
+          "DOUBLE",
+          "CHARGE?"
+        ],
+        [
+          "QUICK",
+          "MOTION"
+        ],
+        [
+          "NOT GOING",
+          "BACK"
+        ],
+        [
+          "THAT WAS THE",
+          "LAST TIME"
+        ],
+        [
+          "WORKED",
+          " "
+        ],
+        [
+          "HEAVY LOAD",
+          " "
+        ]
+      ]
+    },
+    {
+      "label": "captt",
+      "name": "Capitain Glord",
+      "side": "left",
+      "slot": 3,
+      "balloons": [
+        [
+          "FLOWING FINE",
+          " "
+        ],
+        [
+          "COMAND HAS",
+          "CHANGED"
+        ],
+        [
+          "IN",
+          "EXERCISE"
+        ],
+        [
+          "OPERATIONAL",
+          " "
+        ],
+        [
+          "AFIRMATIVE",
+          " "
+        ],
+        [
+          "GOING DOWN",
+          " "
+        ],
+        [
+          "STRATEGIC!",
+          " "
+        ],
+        [
+          "FUELING THE",
+          "REGION"
+        ],
+        [
+          "FULL COVER",
+          " "
+        ],
+        [
+          "THREE",
+          "TRUCKS"
+        ],
+        [
+          "LITTLE",
+          "AMMUNITION"
+        ],
+        [
+          "NO RESOURCES",
+          " "
+        ],
+        [
+          "FIRST CHOICE",
+          " "
+        ],
+        [
+          "SECOND",
+          "CHOICE"
+        ],
+        [
+          "SMOKE",
+          "CURTAIN"
+        ],
+        [
+          "GOING",
+          "FORWARD"
+        ],
+        [
+          "HEAVY",
+          "PENALTIES"
+        ],
+        [
+          "ACCORDING TO",
+          "THE LAW"
+        ],
+        [
+          "CAN BE",
+          "CALCULATED"
+        ],
+        [
+          "I THINK",
+          "OTHERWISE"
+        ]
+      ]
+    },
+    {
+      "label": "minht",
+      "name": "Minhocossul",
+      "side": "left",
+      "slot": 4,
+      "balloons": [
+        [
+          "NOT ENOUGH",
+          " "
+        ],
+        [
+          "SPICES?",
+          " "
+        ],
+        [
+          "LITTLE",
+          "RESERVATION"
+        ],
+        [
+          "MORE",
+          "PEOPLE"
+        ],
+        [
+          "HUMIDITY",
+          "DESTROYED IT"
+        ],
+        [
+          "WITH MORE",
+          "SLAVES"
+        ],
+        [
+          "THEY WON'T",
+          "ALLOW"
+        ],
+        [
+          "THEY DON'T",
+          "UNDERSTAND"
+        ],
+        [
+          "THEY LACK",
+          "VISION"
+        ],
+        [
+          "THAT IS NOT",
+          "ALIGNED"
+        ],
+        [
+          "ONLY AT",
+          "LATE NIGHT"
+        ],
+        [
+          "RETOUCHED!",
+          " "
+        ],
+        [
+          "NO TEAM?",
+          " "
+        ],
+        [
+          "TOXIC",
+          "LEFTOVER"
+        ],
+        [
+          "HUNDREDS",
+          "INFECTED"
+        ],
+        [
+          "NO CURE",
+          " "
+        ],
+        [
+          "VERY",
+          "RADIOACTIVE"
+        ],
+        [
+          "MANY FUNDS",
+          "WERE CUT"
+        ],
+        [
+          "WHAT IF IT",
+          "COLLIDES?"
+        ],
+        [
+          "VERY EARLY",
+          "STAGE"
+        ]
+      ]
+    },
+    {
+      "label": "chavt",
+      "name": "Chavascka",
+      "side": "right",
+      "slot": 0,
+      "balloons": [
+        [
+          "HOW IS THE",
+          "LOAD?"
+        ],
+        [
+          "WHAT DID I",
+          "SAY?"
+        ],
+        [
+          "FINE WORK?",
+          " "
+        ],
+        [
+          "DON'T SAY",
+          " "
+        ],
+        [
+          "MAYBE",
+          "COUNTERFAIT?"
+        ],
+        [
+          "VERY WELL",
+          " "
+        ],
+        [
+          "THEY WERE",
+          "GONE"
+        ],
+        [
+          "HIRE",
+          "RESOURCES"
+        ],
+        [
+          "LET IT BE",
+          " "
+        ],
+        [
+          "WHAT DO WE",
+          "HAVE?"
+        ],
+        [
+          "IT CAN'T",
+          "FAIL"
+        ],
+        [
+          "FIND ANOTHER",
+          "WAY"
+        ],
+        [
+          "NO EXCUSE",
+          " "
+        ],
+        [
+          "LOOK AGAIN",
+          " "
+        ],
+        [
+          "WE CANT ",
+          "WAIT"
+        ],
+        [
+          "ANY RETURN?",
+          " "
+        ],
+        [
+          "TOO CHEAP",
+          " "
+        ],
+        [
+          "MAYBE DOUBLE",
+          " "
+        ],
+        [
+          "CHEAT IT",
+          " "
+        ],
+        [
+          "AT LEAST",
+          "TOMORROW!"
+        ]
+      ]
+    },
+    {
+      "label": "kurot",
+      "name": "Kurote",
+      "side": "right",
+      "slot": 1,
+      "balloons": [
+        [
+          "DON'T GO",
+          "THERE!"
+        ],
+        [
+          "NEVER",
+          "ALONE"
+        ],
+        [
+          "ARE EXITS",
+          "CHECKED?"
+        ],
+        [
+          "WHAT IF IT",
+          "SKIPS?"
+        ],
+        [
+          "REWORK THE",
+          "PLAN"
+        ],
+        [
+          "DELIVER THE",
+          "GOODS"
+        ],
+        [
+          "WAS IT",
+          "OPEN?"
+        ],
+        [
+          "FIX IT",
+          " "
+        ],
+        [
+          "GET RID OF",
+          "THEM!"
+        ],
+        [
+          "WHAT IS",
+          "MISSING?"
+        ],
+        [
+          "CAN IT BE",
+          "SPLIT?"
+        ],
+        [
+          "DELIVER",
+          "ANOTHER"
+        ],
+        [
+          "NOT FAST",
+          "ENOUGH"
+        ],
+        [
+          "GOT IT!",
+          " "
+        ],
+        [
+          "HOW WAS THE",
+          "ANSWER?"
+        ],
+        [
+          "TAKE THE",
+          "LATE ONE"
+        ],
+        [
+          "BE ON TIME",
+          "ON THE DEAL"
+        ],
+        [
+          "IN PARTS,",
+          "YES"
+        ],
+        [
+          "SOME",
+          "DO BELIEVE"
+        ],
+        [
+          "NOT MUCH",
+          "LEFT"
+        ]
+      ]
+    },
+    {
+      "label": "wolft",
+      "name": "Wolf",
+      "side": "right",
+      "slot": 2,
+      "balloons": [
+        [
+          "DON'T",
+          "FORFEIT!"
+        ],
+        [
+          "UNDERSTOOD?",
+          " "
+        ],
+        [
+          "NOW, DOUBLE!",
+          " "
+        ],
+        [
+          "CLOSE THE",
+          "VAULT"
+        ],
+        [
+          "FEW WILL",
+          "ESCAPE"
+        ],
+        [
+          "CHARGE",
+          "FEES"
+        ],
+        [
+          "BE THE LAST",
+          "ONE!"
+        ],
+        [
+          "NO PUSHING",
+          "DEMANDS"
+        ],
+        [
+          "STRANGE",
+          "DUDE"
+        ],
+        [
+          "FOUND THE",
+          "WEAKNESS?"
+        ],
+        [
+          "FOR SURE,",
+          "TUESDAY!"
+        ],
+        [
+          "MAYBE BY",
+          "THE SIDES?"
+        ],
+        [
+          "LOAD IT UP!",
+          " "
+        ],
+        [
+          "DID YOU FIND",
+          "THE DEVICE?"
+        ],
+        [
+          "CAN IT",
+          "COLAPSE?"
+        ],
+        [
+          "WHAT ABOUT",
+          "PROTOCOL?"
+        ],
+        [
+          "IMMIDIATE",
+          "EVAC!"
+        ],
+        [
+          "SOON WILL BE",
+          "OVER!"
+        ],
+        [
+          "GOT THE",
+          "COMMISSION?"
+        ],
+        [
+          "I CAN'T",
+          "WAIT!"
+        ]
+      ]
+    },
+    {
+      "label": "isact",
+      "name": "Isac",
+      "side": "right",
+      "slot": 3,
+      "balloons": [
+        [
+          "RESTORED",
+          "CONNECTION"
+        ],
+        [
+          "HAPTIC",
+          "PROBLEMS"
+        ],
+        [
+          "FRAGMENTS",
+          "DETECTED"
+        ],
+        [
+          "ONLINE",
+          " "
+        ],
+        [
+          "ENCRYPTED",
+          "VALUES"
+        ],
+        [
+          "DELETE",
+          "CONTENT?"
+        ],
+        [
+          "ACCESS",
+          "DENIED"
+        ],
+        [
+          "TERMINATE",
+          "UNITS?"
+        ],
+        [
+          "RESTORE",
+          "INTEGRATION?"
+        ],
+        [
+          "FORMATING",
+          " "
+        ],
+        [
+          "LOW",
+          "BATTERIES"
+        ],
+        [
+          "MAYBE THE",
+          "OPPOSITE"
+        ],
+        [
+          "HALF WAS",
+          "REVERTED"
+        ],
+        [
+          "PROCEDURAL",
+          "OLD WAY"
+        ],
+        [
+          "FAKE ALERT?",
+          " "
+        ],
+        [
+          "DEACTIVATED",
+          " "
+        ],
+        [
+          "FACTORY",
+          "RESET"
+        ],
+        [
+          "INDUSTRIAL",
+          "AREA?"
+        ],
+        [
+          "REWORKING",
+          "LOGISTICS"
+        ],
+        [
+          "PROCEED",
+          " "
+        ]
+      ]
+    },
+    {
+      "label": "shont",
+      "name": "Shonuf",
+      "side": "right",
+      "slot": 4,
+      "balloons": [
+        [
+          "WHO IS THE",
+          "MASTER?"
+        ],
+        [
+          "INVADE!",
+          " "
+        ],
+        [
+          "SQUEEZE THE",
+          "WEAK!"
+        ],
+        [
+          "DON'T BE A",
+          "LOOSER"
+        ],
+        [
+          "NO REMORSE!",
+          " "
+        ],
+        [
+          "CHECK THE",
+          "MERCHS"
+        ],
+        [
+          "USE FISTS!",
+          " "
+        ],
+        [
+          "THERE ARE",
+          "SIGNS"
+        ],
+        [
+          "ACCEPT NO",
+          "CHANGE!"
+        ],
+        [
+          "DESTROY THE",
+          "CLAN!"
+        ],
+        [
+          "COLLECT",
+          "THE CASH?"
+        ],
+        [
+          "HAYAAAHH!",
+          " "
+        ],
+        [
+          "WHAT IS THE",
+          "BEST TIME?"
+        ],
+        [
+          "HOW TO CATCH",
+          "BULLETS?"
+        ],
+        [
+          "WHO?",
+          " "
+        ],
+        [
+          "WE WILL SEE!",
+          " "
+        ],
+        [
+          "NO WATCHERS",
+          " "
+        ],
+        [
+          "DIRTY",
+          "TRICK"
+        ],
+        [
+          "HE WASN'T",
+          "THERE"
+        ],
+        [
+          "WHAT NOW?",
+          " "
+        ]
+      ]
+    }
+  ]
+}

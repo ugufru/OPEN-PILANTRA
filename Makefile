@@ -42,9 +42,25 @@ else
   BREW_DEPS  :=
 endif
 
-.PHONY: all run run-en run-br compare clean distclean toolchain deps
+.PHONY: all run run-en run-br compare clean distclean toolchain deps \
+        dialogue-extract dialogue-inject dialogue-lint dialogue-verify
 
 all: $(DSK)
+
+# --- dialogue as data -------------------------------------------------------
+STORY := story/dialogue.json
+
+dialogue-extract:                       ## .bas -> JSON
+	python3 tools/dialogue.py extract $(SOURCE) $(STORY)
+
+dialogue-inject: dialogue-lint          ## JSON -> .bas (in place)
+	python3 tools/dialogue.py inject $(SOURCE) $(STORY)
+
+dialogue-lint:                          ## check the authoring constraints
+	python3 tools/dialogue.py lint $(STORY)
+
+dialogue-verify:                        ## prove the round trip is byte-exact
+	python3 tools/dialogue.py verify $(SOURCE)
 
 $(DSK): $(SOURCE) | $(UGBC) $(ASM6809) $(DECB)
 	@mkdir -p $(BUILD)
