@@ -61,15 +61,32 @@ main loop begin.
 
 ## Building
 
+Needs `git`, a C compiler, and GNU autotools. On macOS, `make deps` installs
+what's missing via Homebrew.
+
 ```sh
-make toolchain    # one-time, slow: fetches and builds ugbc.coco, asm6809, decb
+make deps         # macOS only: autoconf, automake, libtool, bison, gnu-sed
+make toolchain    # one-time, slow (~30 min): builds ugbc.coco, asm6809, decb
 make              # compiles OPIL-source.bas -> build/OPIL.dsk
 make run          # compiles, then boots the result in XRoar
 make compare      # structural diff of the build against OPIL-EN.dsk
+make clean        # remove build/
+make distclean    # also remove the toolchain
 ```
 
 `make` never writes to the committed `.dsk` images; output goes to `build/`.
-`make distclean` removes the toolchain (~800 MB under `.toolchain/`, gitignored).
+The toolchain lands in `.toolchain/` (~800 MB, gitignored).
+
+> **Caveat:** `make toolchain` has not yet been run end-to-end from an empty
+> `.toolchain/`. Every step was executed and verified by hand while working the
+> build out, and the compiler it produces demonstrably works — but the target as
+> a single command is untested. See issue #9.
+
+On Linux the Darwin-specific workarounds below are skipped automatically; you
+need `autoconf`, `automake`, `libtool`, `bison` (≥3) and `flex` from your
+package manager. Windows is not covered here — ugBASIC ships official binaries
+for it, so `make toolchain` is unnecessary; use `ugbc.coco.exe` directly with
+the same arguments.
 
 The compile itself is a single call:
 
@@ -82,11 +99,10 @@ on the shipped images, which is how we know that's how they were built.
 
 ### Toolchain notes
 
-There is no macOS build of ugBASIC, so the Makefile builds one. Four things bite
-on Darwin, all handled automatically:
+ugBASIC publishes binaries for Linux and Windows only, so on macOS the Makefile
+builds the compiler from source. Four things bite on Darwin, all handled
+automatically:
 
-- **`autoconf`, `automake`, `libtool`, `bison`, `gnu-sed` are required.**
-  `make deps` installs them via Homebrew.
 - **macOS ships bison 2.3**; ugbc's grammar needs bison 3. Homebrew's is put
   ahead of it on `PATH` rather than installed over the system one.
 - **ugbc's makefile uses GNU `sed -i`**, which BSD sed rejects. `gsed` is used
@@ -98,7 +114,10 @@ on Darwin, all handled automatically:
   collide again.
 - **ugBASIC ships prebuilt Linux x86-64 binaries and objects** inside its
   ToolShed module, and its makefiles treat them as up to date. They're purged so
-  the native compiler rebuilds them. Skip this and `decb` stays an ELF binary,
+  the native compiler rebuilds them. (This one isn't strictly Darwin-specific —
+  it bites any host that isn't x86-64 Linux — but the Makefile purges them
+  unconditionally, which is harmless where they'd have worked.) Skip this and
+  `decb` stays an ELF binary,
   and ugbc reports only `The compilation of assembly program failed. Please use
   option '-I' to install chain tool.` — which is misleading, since `-I` was
   removed from ugbc (bug #641) and the actual fault is an unrunnable helper.
@@ -364,8 +383,10 @@ are now testable.
 
 - **The sentence counter is broken.** The author's own last line in the source:
   *"DEFEITO NO CONTADOR DE FRASE, CORTA RAPIDO E NAO TERMINA"* — the phrase
-  counter cuts off fast and doesn't finish. `DEC z` at the top of the scene loop
-  interacts badly with the `EXIT IF z=0` at the bottom.
+  counter cuts off fast and doesn't finish. That `REM` confirms the symptom. The
+  likely cause — `DEC z` at the top of the scene loop against `EXIT IF z=0` at
+  the bottom — is a reading of the source, **not** something traced or
+  reproduced. Verify before fixing.
 - **Three of four cutscene categories are dead.** Line 587 is
   `z=0 :'z=RND(3)` — the randomizer is commented out, so only the skyline
   branch ever runs. The four *backgrounds* (`midl`, `dock`, `citi`, `spac`) are
@@ -381,6 +402,9 @@ are now testable.
 - **Reference captures are incomplete.** `docs/screens/` is missing a
   speech-bubble frame and an `HSCROLL` cutscene, the two most illustrative
   shots.
+- **`make toolchain` is unverified from a clean clone.** Every step was run by
+  hand and the resulting compiler works, but the target itself has never been
+  executed end-to-end against an empty `.toolchain/`.
 
 ## Credits
 
