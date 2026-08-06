@@ -343,6 +343,57 @@ Confirmed empirically: a captured run put Isac on the right saying
 "PROCEDURAL / OLD WAY", which is exactly the `DATA` pair at line 225 of
 `OPIL-source.bas`.
 
+### The `z` counter
+
+The author's last line in the source flags a known bug: *"DEFEITO NO CONTADOR DE
+FRASE, CORTA RAPIDO E NAO TERMINA"* — the phrase counter cuts short and doesn't
+finish. Tracing `z` (with `RND(n)` returning `0..n-1`, confirmed by `ch1=RND(5)`
+being tested against `IF ch1=0..4`):
+
+| `z` initial | path through the scene loop | sentences |
+| --- | --- | --- |
+| 1 | `DEC`→0, print, `EXIT IF z=0` | 1 |
+| 2–6 | counts down to 0 | 2–6 |
+| 7 | `DEC`→6, print, `IF z=6` → 3 s wait, exit | 1 (solo) |
+
+The arithmetic is sound — `z` initial *is* the sentence count. The symptom came
+from two separate defects, both now fixed:
+
+**"CORTA RAPIDO".** The original read:
+
+```basic
+z=RND(8)+1
+IF z>7 THEN z=7
+```
+
+`RND(8)+1` gives 1..8, and the clamp folds 8 onto 7 — but **7 is the one-line
+solo sentinel**, so it collected 2/8 of the probability mass. With `z=1` also
+yielding one line, 3 in 8 dialogue scenes were a single sentence. Changing it to
+`z=RND(7)+1` and dropping the clamp makes 1..7 uniform: single-line scenes fall
+from 37.5% to 28.6%, and mean length rises from 2.88 to 3.14 sentences.
+
+**"NAO TERMINA".** The scene loop was followed by:
+
+```basic
+LOOP
+x=352:DO:POKE 1024+x,128:INC x:EXIT IF x=512:LOOP   :REM CLS dialog area
+WAIT #1500 MILLISECONDS
+CLS
+```
+
+The dialogue area was wiped *before* the closing wait, so the last sentence was
+erased the instant the loop exited and the scene sat blank for 1.5 s. Every
+other line got a reading beat; the final one got none. Removing that clear lets
+the last line stand — and since `CLS` follows immediately, it was redundant
+anyway.
+
+![Patched build running](docs/screens/zfix-verify.png)
+
+*The fix running: a full-length scene reaching its last line.*
+
+Note the *range* 1..6 is a tuning decision, not a defect — if scenes still feel
+short, that's the knob, and it's the author's call.
+
 ### Speech vs. thought
 
 `z=7` selects a **solo** scene: one character alone, thinking. The same
@@ -381,12 +432,8 @@ Tracked in `issues.jsonl` — one JSON object per line, with `id`, `summary`,
 The build blocker (#6) is resolved — see [Building](#building) — so source fixes
 are now testable.
 
-- **The sentence counter is broken.** The author's own last line in the source:
-  *"DEFEITO NO CONTADOR DE FRASE, CORTA RAPIDO E NAO TERMINA"* — the phrase
-  counter cuts off fast and doesn't finish. That `REM` confirms the symptom. The
-  likely cause — `DEC z` at the top of the scene loop against `EXIT IF z=0` at
-  the bottom — is a reading of the source, **not** something traced or
-  reproduced. Verify before fixing.
+- ~~**The sentence counter is broken.**~~ Fixed — see
+  [The `z` counter](#the-z-counter) below.
 - **Three of four cutscene categories are dead.** Line 587 is
   `z=0 :'z=RND(3)` — the randomizer is commented out, so only the skyline
   branch ever runs. The four *backgrounds* (`midl`, `dock`, `citi`, `spac`) are

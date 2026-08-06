@@ -671,8 +671,7 @@ REM --- DIALOG -----------------------------------------------------------------
 dialog:
 REM --- SETUP
 ch1=RND(5):ch2=RND(5)	:REM CHOOSE CHARACTER LEFT / RIGHT   ?????????????? falta preto
-z=RND(8)+1				:REM SCENE DURATION # SENTENCES >7 THINKING -1 6
-IF z>7 THEN z=7
+z=RND(7)+1				:REM SCENE DURATION # SENTENCES 1-6, 7 THINKING -1 6
 w=RND(2)				:REM FIRST STRIKER
 
 REM --- DRAW CHARACTERS
@@ -840,8 +839,7 @@ REM --- TALKING
 		z=0:EXIT
 	ENDIF
 LOOP
-x=352:DO:POKE 1024+x,128:INC x:EXIT IF x=512:LOOP			:REM CLS dialog area
-WAIT #1500 MILLISECONDS
+WAIT #1500 MILLISECONDS										:REM let the last line be read
 CLS
 RETURN
 
