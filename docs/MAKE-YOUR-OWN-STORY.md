@@ -450,8 +450,15 @@ Full details in the [README](../README.md#building).
 
 ## Credits
 
-Original demo, artwork and manual by **FUED.NET**, 2026. Built with
-[ugBASIC](https://ugbasic.iwashere.eu/) by Marco Spedaletti. Artwork in this
-document is clipped from the OPEN PILANTRA manual. SGEditor by Simon Jonassen.
+Original demo, artwork and manual by **Erico Patricio Monteiro**, released as
+**FUED.NET**, 2026 — <https://fued.net/open-pilantra/>. Every figure in this
+document is clipped from his manual.
+
+Built with [ugBASIC](https://ugbasic.iwashere.eu/) by Marco Spedaletti.
+SGEditor by Simon Jonassen.
+
+If you build something on top of this, the author asks only that you consider
+donating to support future projects. And if you make a story worth seeing,
+he'd probably like to know.
 
 *Have fun.*

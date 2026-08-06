@@ -4,6 +4,8 @@ A generative dialogue demo for the TRS-80 Color Computer, written in
 [ugBASIC](https://ugbasic.iwashere.eu/) and compiled to native 6809.
 
 > OPEN PILANTRA V0.3 — FUED.NET 2026
+>
+> By Erico Patricio Monteiro · <https://fued.net/open-pilantra/>
 
 Ten characters meet in randomly chosen pairs, in randomly chosen locations, and
 talk past each other in corporate-noir non-sequiturs. No two runs are the same.
@@ -462,4 +464,20 @@ are now testable.
 
 ## Credits
 
-Original by FUED.NET, 2026. Built with ugBASIC.
+Artwork by **Erico Patricio Monteiro**, who releases as **FUED.NET** — the
+demo, its manual and the original Portuguese script are his too.
+
+Project page: <https://fued.net/open-pilantra/> — free, with source code and a
+PDF covering ugBASIC and XRoar setup. If you enjoy this kind of thing, he asks
+that you consider donating to support future projects.
+
+> *"Open Pilantra, an ugBasic eternal random animation about thugs plotting
+> nefastus schemes."*
+> — Erico Patricio Monteiro
+
+Built with [ugBASIC](https://ugbasic.iwashere.eu/) by Marco Spedaletti.
+Shown at RetroSC 2025 by the author, and at COCO Fest 2026 by Henry Strickland.
+
+This repository is an unaffiliated study of the demo: the analysis, build
+pipeline, authoring guide and issue tracker are additions. The demo, artwork and
+manual remain the author's work.
