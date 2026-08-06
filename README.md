@@ -16,6 +16,7 @@ in it affordable from a compiled BASIC.
 | File | What it is |
 | --- | --- |
 | `OPIL-source.bas` | ugBASIC source, 873 lines. The whole program. |
+| `Makefile` | Builds the source into a `.dsk`; see [Building](#building). |
 | `OPIL-EN.dsk` | English build, RS-DOS disk image. |
 | `OPIL_BR.dsk` | Brazilian Portuguese build (the original). |
 | `OPEN PILANTRA.pdf` | Design document / character art sheet. |
@@ -57,6 +58,62 @@ Notes on the flags, learned the hard way:
 Loading takes ~10 s of emulated time before the intro starts. The intro runs
 FUED.NET → ugBASIC splash → title card, roughly 25 s, and only then does the
 main loop begin.
+
+## Building
+
+```sh
+make toolchain    # one-time, slow: fetches and builds ugbc.coco, asm6809, decb
+make              # compiles OPIL-source.bas -> build/OPIL.dsk
+make run          # compiles, then boots the result in XRoar
+make compare      # structural diff of the build against OPIL-EN.dsk
+```
+
+`make` never writes to the committed `.dsk` images; output goes to `build/`.
+`make distclean` removes the toolchain (~800 MB under `.toolchain/`, gitignored).
+
+The compile itself is a single call:
+
+```sh
+ugbc.coco -C <asm6809> -b <decb> -o build/OPIL.dsk -O dsk OPIL-source.bas
+```
+
+`-O dsk` is what produces the `LOADER.BAS` + `P` + `P.00` + `P.01` layout found
+on the shipped images, which is how we know that's how they were built.
+
+### Toolchain notes
+
+There is no macOS build of ugBASIC, so the Makefile builds one. Four things bite
+on Darwin, all handled automatically:
+
+- **`autoconf`, `automake`, `libtool`, `bison`, `gnu-sed` are required.**
+  `make deps` installs them via Homebrew.
+- **macOS ships bison 2.3**; ugbc's grammar needs bison 3. Homebrew's is put
+  ahead of it on `PATH` rather than installed over the system one.
+- **ugbc's makefile uses GNU `sed -i`**, which BSD sed rejects. `gsed` is used
+  instead.
+- **`encrypt()` collides.** ugbc declares its own `encrypt()`; Darwin's
+  `unistd.h` already declares a POSIX one with a different signature. The
+  Makefile renames ugbc's symbol to `ugbc_encrypt`. Note that a `-Dencrypt=…`
+  define does *not* work — it renames the system declaration too, and they
+  collide again.
+- **ugBASIC ships prebuilt Linux x86-64 binaries and objects** inside its
+  ToolShed module, and its makefiles treat them as up to date. They're purged so
+  the native compiler rebuilds them. Skip this and `decb` stays an ELF binary,
+  and ugbc reports only `The compilation of assembly program failed. Please use
+  option '-I' to install chain tool.` — which is misleading, since `-I` was
+  removed from ugbc (bug #641) and the actual fault is an unrunnable helper.
+
+### Reproducibility
+
+A fresh build is **not** byte-identical to the shipped images: same 161280-byte
+size and same four-file directory, but ~20 700 bytes differ, because the
+originals were built with an older ugbc (this was verified against 1.18.1).
+The rebuild boots and runs correctly, which is the bar that matters.
+
+![Rebuilt image running](docs/screens/rebuild-verify.png)
+
+*`build/OPIL.dsk`, compiled from source and running under XRoar — Mano Courier
+and Shonuf.*
 
 ## What it looks like
 
@@ -302,11 +359,8 @@ Tracked in `issues.jsonl` — one JSON object per line, with `id`, `summary`,
 `description`, `type`, `status` (open / in-progress / done), `priority` and
 `file`. Read it with `jq -c . issues.jsonl`.
 
-**Nothing here can be fixed yet.** There is no documented ugBASIC command line
-for rebuilding the `.dsk` images from `OPIL-source.bas`, so no source change can
-be tested. That is issue #6, and it blocks #1, #2 and #4.
-
-The rest:
+The build blocker (#6) is resolved — see [Building](#building) — so source fixes
+are now testable.
 
 - **The sentence counter is broken.** The author's own last line in the source:
   *"DEFEITO NO CONTADOR DE FRASE, CORTA RAPIDO E NAO TERMINA"* — the phrase

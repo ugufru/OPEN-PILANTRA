@@ -8,8 +8,6 @@
 *.cas
 screenshot*.png
 
-# ugBASIC build output
+# build output and toolchain (see `make toolchain`)
 build/
-*.asm
-*.lst
-*.map
+.toolchain/
