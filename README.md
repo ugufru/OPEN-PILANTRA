@@ -22,8 +22,9 @@ in it affordable from a compiled BASIC.
 | `docs/MAKE-YOUR-OWN-STORY.md` | **Authoring guide** — how to write your own dialogue, characters and scenery. |
 | `OPIL-EN.dsk` | English build, RS-DOS disk image. |
 | `OPIL_BR.dsk` | Brazilian Portuguese build (the original). |
-| `OPEN PILANTRA.pdf` | Design document / character art sheet. |
-| `517989023_*.jpg` | Character portraits paired with their BR dialogue tables. |
+| `OPEN PILANTRA.pdf` | The author's manual — setup, tooling, code structure. |
+| `NOTICE` | Attribution and provenance. **Read this before reusing anything.** |
+| `LICENSE` | MIT — covers this repository's additions only, not the demo. |
 
 ![OPEN PILANTRA title card](docs/screens/title.png)
 
@@ -479,5 +480,8 @@ Built with [ugBASIC](https://ugbasic.iwashere.eu/) by Marco Spedaletti.
 Shown at RetroSC 2025 by the author, and at COCO Fest 2026 by Henry Strickland.
 
 This repository is an unaffiliated study of the demo: the analysis, build
-pipeline, authoring guide and issue tracker are additions. The demo, artwork and
-manual remain the author's work.
+pipeline, authoring guide and issue tracker are additions, MIT-licensed. The
+demo, artwork, script and manual remain the author's work and are mirrored here
+under his stated intent that people are free to play with it. See
+[`NOTICE`](NOTICE) for the full provenance — and if you're the author and would
+rather they weren't here, open an issue and they'll come out.

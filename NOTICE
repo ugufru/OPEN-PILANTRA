@@ -1,0 +1,70 @@
+OPEN PILANTRA — attribution and provenance
+==========================================
+
+This repository contains two distinct bodies of work. Please keep them
+straight when reusing anything from it.
+
+
+1. The original demo — © Erico Patricio Monteiro (FUED.NET), 2026
+-----------------------------------------------------------------
+
+    OPIL-source.bas         ugBASIC source for the demo
+    OPIL-EN.dsk             English build, RS-DOS disk image
+    OPIL_BR.dsk             Brazilian Portuguese build (the original)
+    OPEN PILANTRA.pdf       the author's manual
+    docs/art/*.png          figures clipped from that manual
+
+Written, drawn, scripted and documented by Erico Patricio Monteiro, who
+releases under the name FUED.NET.
+
+    Project page:  https://fued.net/open-pilantra/
+
+The author distributes the demo freely, with source code and the manual,
+and the manual states:
+
+    "Open Pilantra is made so people can play around with it, you are
+     free to change graphics, dialogs or add anything you please."
+
+These files are mirrored here under that stated intent so the repository
+stays self-contained and buildable. No separate licence grant has been
+obtained. If you are the author and would prefer they were removed or
+handled differently, please open an issue and it will be done promptly.
+
+If you enjoy the work, the author asks that you consider donating to
+support future projects. Please do that through fued.net rather than
+treating this mirror as the source.
+
+The demo was shown at RetroSC 2025 by the author, and at COCO Fest 2026
+by Henry Strickland.
+
+
+2. Everything else — the study, © Paul Cunningham, 2026
+-------------------------------------------------------
+
+    README.md               technical analysis of how the demo works
+    docs/MAKE-YOUR-OWN-STORY.md
+                            authoring guide
+    Makefile                macOS/Linux build pipeline
+    CONTRIBUTING.md         contribution policy
+    issues.jsonl            issue tracker
+    docs/screens/*.png      screen captures taken from emulator runs
+
+Licensed under the MIT Licence — see LICENSE. That licence covers these
+additions only. It does not, and cannot, relicense the original demo,
+its artwork, its script or its manual.
+
+This repository is an unaffiliated study. It is not endorsed by, nor
+associated with, the author.
+
+
+3. Third-party tools referenced
+-------------------------------
+
+    ugBASIC     Marco Spedaletti      https://ugbasic.iwashere.eu/
+    XRoar       Ciaran Anscomb        https://www.6809.org.uk/xroar/
+    asm6809     Ciaran Anscomb        https://www.6809.org.uk/asm6809/
+    ToolShed    the ToolShed authors
+    SGEditor    Simon Jonassen        https://daftspaniel.neocities.org/tools/sgeditremix/
+
+None of these are vendored here; the Makefile fetches and builds them on
+demand into a gitignored directory.
