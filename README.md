@@ -17,12 +17,19 @@ in it affordable from a compiled BASIC.
 | --- | --- |
 | `OPIL-source.bas` | ugBASIC source, 873 lines. The whole program. |
 | `Makefile` | Builds the source into a `.dsk`; see [Building](#building). |
+| `docs/MAKE-YOUR-OWN-STORY.md` | **Authoring guide** — how to write your own dialogue, characters and scenery. |
 | `OPIL-EN.dsk` | English build, RS-DOS disk image. |
 | `OPIL_BR.dsk` | Brazilian Portuguese build (the original). |
 | `OPEN PILANTRA.pdf` | Design document / character art sheet. |
 | `517989023_*.jpg` | Character portraits paired with their BR dialogue tables. |
 
 ![OPEN PILANTRA title card](docs/screens/title.png)
+
+> **Want to write your own?** The demo is built to be rewritten — the manual
+> explicitly invites it. See **[Make Your Own
+> Story](docs/MAKE-YOUR-OWN-STORY.md)** for the authoring guide: the cast, the
+> `DATA` format, the rules that keep randomly-shuffled lines reading as a
+> conversation, and how to redraw the characters.
 
 ## Running it
 
