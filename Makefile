@@ -11,7 +11,15 @@
 #
 # The default target never writes to the committed .dsk images.
 
+# OPIL-source.bas is the complete, standalone, hand-edited source - the copy you
+# would offer upstream. story/dialogue.json is the source of truth for TEXT.
+# The build strips the DATA blocks out of the former and re-supplies them from
+# the latter, so dialogue is genuinely sourced from JSON.
 SOURCE      := OPIL-source.bas
+STORY       := story/dialogue.json
+GENDIR      := generated
+GENDLG      := $(GENDIR)/dialogue.bas
+BUILDSRC    := src/opil.bas
 BUILD       := build
 DSK         := $(BUILD)/OPIL.dsk
 
@@ -48,7 +56,15 @@ endif
 all: $(DSK)
 
 # --- dialogue as data -------------------------------------------------------
-STORY := story/dialogue.json
+
+$(GENDLG): $(STORY) tools/dialogue.py
+	python3 tools/dialogue.py emit $(STORY) $@
+
+$(BUILDSRC): $(SOURCE) tools/dialogue.py
+	python3 tools/dialogue.py strip $(SOURCE) $@ $(GENDLG)
+
+dialogue-check:                         ## fail if the .bas and JSON disagree
+	python3 tools/dialogue.py check $(SOURCE) $(STORY)
 
 dialogue-extract:                       ## .bas -> JSON
 	python3 tools/dialogue.py extract $(SOURCE) $(STORY)
@@ -62,9 +78,9 @@ dialogue-lint:                          ## check the authoring constraints
 dialogue-verify:                        ## prove the round trip is byte-exact
 	python3 tools/dialogue.py verify $(SOURCE)
 
-$(DSK): $(SOURCE) | $(UGBC) $(ASM6809) $(DECB)
+$(DSK): $(BUILDSRC) $(GENDLG) | $(UGBC) $(ASM6809) $(DECB)
 	@mkdir -p $(BUILD)
-	$(UGBC) -C $(ASM6809) -b $(DECB) -o $@ -O dsk $<
+	$(UGBC) -C $(ASM6809) -b $(DECB) -o $@ -O dsk $(BUILDSRC)
 	@echo "built $@ ($$(wc -c < $@) bytes)"
 
 run: $(DSK)

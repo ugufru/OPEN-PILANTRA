@@ -98,7 +98,50 @@ package manager. Windows is not covered here — ugBASIC ships official binaries
 for it, so `make toolchain` is unnecessary; use `ugbc.coco.exe` directly with
 the same arguments.
 
-The compile itself is a single call:
+### Where the dialogue lives
+
+**`story/dialogue.json` is the source of truth for all text.** The build strips
+the `DATA` blocks out of `OPIL-source.bas`, re-emits them from the JSON, and
+`INCLUDE`s the result — so the words that reach the screen come from the JSON,
+not the BASIC file.
+
+```
+story/dialogue.json  ──emit──>  generated/dialogue.bas ─┐
+                                                        ├─> ugbc ─> build/OPIL.dsk
+OPIL-source.bas ─────strip───>  src/opil.bas ───────────┘
+                                (INCLUDEs the above)
+```
+
+`src/` and `generated/` are build artifacts and gitignored. `OPIL-source.bas`
+stays a complete, standalone, hand-edited file — it still contains the dialogue
+and still compiles on its own, so it remains the copy you would offer upstream.
+
+| Edit this | For |
+| --- | --- |
+| `story/dialogue.json` | anything a character says |
+| `OPIL-source.bas` | code, graphics, timing |
+
+```sh
+make dialogue-lint       # check the authoring constraints
+make dialogue-check      # fail if the .bas and JSON have drifted apart
+make dialogue-extract    # .bas -> JSON  (re-sync after editing the .bas)
+make dialogue-inject     # JSON -> .bas  (re-sync after editing the JSON)
+make dialogue-verify     # prove the round trip is byte-exact
+```
+
+Because both files hold the text, they can drift. `make dialogue-check` is the
+guard: it fails the moment they disagree, and `extract` / `inject` resync in
+whichever direction you want.
+
+That `INCLUDE` is safe to rely on: compiling the same program with the `DATA`
+inline and with it included emits **byte-identical code** — verified on a
+reduced case (2056 instructions, differing only in `; L:n` source-line
+comments) and on the full demo (6720 instructions, one benign peephole choice
+where the compiler loads `$0400` immediate rather than from memory).
+
+### The compile itself
+
+The compile is a single call:
 
 ```sh
 ugbc.coco -C <asm6809> -b <decb> -o build/OPIL.dsk -O dsk OPIL-source.bas

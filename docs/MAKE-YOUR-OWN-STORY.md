@@ -170,16 +170,35 @@ will land differently depending on who it follows. Those are your best lines.
 
 ## Where to edit
 
-Open `OPIL-source.bas`, find the label, replace the strings between the quotes.
-Keep the layout — the tab alignment is cosmetic but makes the blocks readable.
+**Easiest: edit `story/dialogue.json`.** That file is the source of truth for
+text — the build emits the `DATA` blocks from it, so your words go straight to
+the screen:
+
+```json
+{
+  "label": "manot",
+  "name": "Mano Courier",
+  "side": "left",
+  "slot": 0,
+  "balloons": [
+    ["AS I SAID", "ALL FINE"],
+    ["HM, I THINK", "IT WENT SOUTH"]
+  ]
+}
+```
 
 Then:
 
 ```sh
+make dialogue-lint    # catches over-long lines and miscounts before you build
 make run
 ```
 
-That's the whole loop. Roughly a minute to rebuild and boot.
+That's the whole loop — roughly a minute to rebuild and boot.
+
+You can still edit the `DATA` blocks in `OPIL-source.bas` directly if you
+prefer; keep the tab layout, then run `make dialogue-extract` to pull your
+changes into the JSON. `make dialogue-check` tells you if the two have drifted.
 
 ---
 

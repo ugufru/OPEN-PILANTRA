@@ -1,10 +1,20 @@
 #!/usr/bin/env python3
 """Move OPEN PILANTRA's dialogue between OPIL-source.bas and JSON.
 
-    extract  <bas> <json>   read the DATA blocks out to JSON
-    inject   <bas> <json>   write JSON values back into the .bas, in place
-    lint     <json>         check the authoring constraints
-    verify   <bas>          prove the round trip is byte-exact
+    extract  <bas> <json>          read the DATA blocks out to JSON
+    inject   <bas> <json>          write JSON values back into the .bas, in place
+    lint     <json>                check the authoring constraints
+    verify   <bas>                 prove the round trip is byte-exact
+    check    <bas> <json>          assert the two agree (drift detection)
+
+Build-time, making JSON the source of truth:
+
+    emit     <json> <out.bas>            the ten label+DATA blocks, from JSON
+    strip    <bas> <out.bas> <incpath>   the source minus DATA, plus one INCLUDE
+
+`RESTORE` into a label defined inside an INCLUDEd file is safe: compiling the
+same program with the DATA inline and with it included emits byte-identical
+code (2056 instructions, differing only in `; L:n` source-line comments).
 
 The correctness bar is `verify`: extract to JSON, inject that JSON back into a
 scratch copy, and require the result to be byte-identical to the original. If
@@ -178,6 +188,58 @@ def inject(bas_path, doc):
     return changed
 
 
+# --- emit / strip: JSON as the source of truth -------------------------------
+
+GENERATED_BANNER = (
+    "REM =========================================================================\n"
+    "REM  GENERATED FILE - DO NOT EDIT\n"
+    "REM  Emitted from %s by tools/dialogue.py.\n"
+    "REM  Edit the dialogue there; this file is rebuilt on every make.\n"
+    "REM ========================================================================="
+)
+
+
+def emit(doc, source_name="story/dialogue.json"):
+    """Render the ten label + DATA blocks as an INCLUDE-able .bas."""
+    out = [GENERATED_BANNER % source_name, ""]
+    for char in doc["characters"]:
+        out.append(
+            "REM --- %s (%s)" % (char["name"].upper(), char["side"])
+        )
+        out.append("%s:" % char["label"])
+        flat = [s for balloon in char["balloons"] for s in balloon]
+        for n in range(0, len(flat), STRINGS_PER_DATA_LINE):
+            out.append(format_data_line(flat[n : n + STRINGS_PER_DATA_LINE]))
+        out.append("")
+    return "\n".join(out) + "\n"
+
+
+def strip(bas_path, include_path):
+    """Return the source with every label+DATA block replaced by one INCLUDE."""
+    text, had_bom = read_source(bas_path)
+    lines = text.split("\n")
+    blocks, _ = find_blocks(lines)
+
+    drop = set()
+    first = None
+    for label, (label_idx, data_idx) in blocks.items():
+        drop.add(label_idx)
+        drop.update(data_idx)
+        if first is None or label_idx < first:
+            first = label_idx
+
+    if first is None:
+        raise SystemExit("%s: found no dialogue blocks to strip" % bas_path)
+
+    out = []
+    for i, line in enumerate(lines):
+        if i == first:
+            out.append('INCLUDE "%s"' % include_path)
+        if i not in drop:
+            out.append(line)
+    return "\n".join(out), had_bom
+
+
 # --- lint -------------------------------------------------------------------
 
 
@@ -287,6 +349,50 @@ def main(argv):
 
     if cmd == "verify" and len(argv) == 3:
         return verify(argv[2])
+
+    if cmd == "check" and len(argv) == 4:
+        from_bas = extract(argv[2])
+        from_json = json.loads(Path(argv[3]).read_text())
+        a = {c["label"]: c["balloons"] for c in from_bas["characters"]}
+        b = {c["label"]: c["balloons"] for c in from_json["characters"]}
+        if a == b:
+            print("in sync - %s and %s agree" % (argv[2], argv[3]))
+            return 0
+        print("DRIFT - %s and %s disagree:" % (argv[2], argv[3]))
+        for label in sorted(set(a) | set(b)):
+            if a.get(label) != b.get(label):
+                for i, (x, y) in enumerate(zip(a.get(label, []), b.get(label, []))):
+                    if x != y:
+                        print("  %s balloon %d: bas=%r json=%r" % (label, i, x, y))
+        return 1
+
+    if cmd == "emit" and len(argv) == 4:
+        doc = json.loads(Path(argv[2]).read_text())
+        problems = lint(doc)
+        if problems:
+            print("refusing to emit - fix these first:")
+            for p in problems:
+                print("  " + p)
+            return 1
+        Path(argv[3]).parent.mkdir(parents=True, exist_ok=True)
+        Path(argv[3]).write_text(emit(doc, argv[2]))
+        balloons = sum(len(c["balloons"]) for c in doc["characters"])
+        print(
+            "emitted %d characters, %d balloons -> %s"
+            % (len(doc["characters"]), balloons, argv[3])
+        )
+        return 0
+
+    if cmd == "strip" and len(argv) == 5:
+        text, had_bom = strip(argv[2], argv[4])
+        Path(argv[3]).parent.mkdir(parents=True, exist_ok=True)
+        write_source(argv[3], text, had_bom)
+        remaining = sum(1 for l in text.split("\n") if DATA_RE.match(l))
+        print(
+            'stripped %s -> %s (INCLUDE "%s", %d DATA lines left)'
+            % (argv[2], argv[3], argv[4], remaining)
+        )
+        return 0
 
     print(__doc__)
     return 2
