@@ -196,9 +196,8 @@ make run
 
 That's the whole loop — roughly a minute to rebuild and boot.
 
-You can still edit the `DATA` blocks in `OPIL-source.bas` directly if you
-prefer; keep the tab layout, then run `make dialogue-extract` to pull your
-changes into the JSON. `make dialogue-check` tells you if the two have drifted.
+The `DATA` blocks are still present in `OPIL-source.bas`, but the build ignores
+them — editing them there has no effect. Change the JSON.
 
 ---
 

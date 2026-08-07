@@ -1,29 +1,18 @@
 #!/usr/bin/env python3
 """Move OPEN PILANTRA's dialogue between OPIL-source.bas and JSON.
 
-    extract  <bas> <json>          read the DATA blocks out to JSON
-    inject   <bas> <json>          write JSON values back into the .bas, in place
-    lint     <json>                check the authoring constraints
-    verify   <bas>                 prove the round trip is byte-exact
-    check    <bas> <json>          assert the two agree (drift detection)
-
-Build-time, making JSON the source of truth:
+story/dialogue.json is the source of truth for text. The build emits the DATA
+blocks from it and has a stripped copy of the source INCLUDE them, so the
+original OPIL-source.bas is only ever read, never written.
 
     emit     <json> <out.bas>            the ten label+DATA blocks, from JSON
     strip    <bas> <out.bas> <incpath>   the source minus DATA, plus one INCLUDE
+    lint     <json>                      check the authoring constraints
+    extract  <bas> <json>                re-derive the JSON from the .bas
 
 `RESTORE` into a label defined inside an INCLUDEd file is safe: compiling the
 same program with the DATA inline and with it included emits byte-identical
 code (2056 instructions, differing only in `; L:n` source-line comments).
-
-The correctness bar is `verify`: extract to JSON, inject that JSON back into a
-scratch copy, and require the result to be byte-identical to the original. If
-that holds, the extractor is not losing anything.
-
-Injection is line-wise and conservative. A DATA line whose values are unchanged
-is left exactly as the author wrote it, tabs and stray spaces included. Only
-lines you actually edited get regenerated, and those are laid out in the
-author's own style (commas on columns 20/36/52 at 4-column tab stops).
 """
 
 import json
@@ -138,14 +127,14 @@ def extract(bas_path):
             "Dialogue for OPEN PILANTRA. Each balloon is [line1, line2]; use "
             '" " (a single space) for a blank second line, not "". Constraints: '
             "20 balloons per character, max 13 characters per line. "
-            "Edit here, then: python3 tools/dialogue.py inject OPIL-source.bas "
-            "story/dialogue.json"
+            "This file is the source of truth for text; the build emits the "
+            "DATA blocks from it. Edit here, then run make."
         ),
         "characters": characters,
     }
 
 
-# --- inject -----------------------------------------------------------------
+# --- emit / strip: what the build actually uses ------------------------------
 
 
 def format_data_line(four):
@@ -160,36 +149,6 @@ def format_data_line(four):
     return out
 
 
-def inject(bas_path, doc):
-    text, had_bom = read_source(bas_path)
-    lines = text.split("\n")
-    blocks, _ = find_blocks(lines)
-    by_label = {c["label"]: c for c in doc["characters"]}
-
-    changed = 0
-    for label, (_, data_idx) in blocks.items():
-        char = by_label.get(label)
-        if char is None:
-            continue
-        flat = [s for balloon in char["balloons"] for s in balloon]
-        if len(flat) != len(data_idx) * STRINGS_PER_DATA_LINE:
-            raise SystemExit(
-                "%s: expected %d strings, JSON has %d"
-                % (label, len(data_idx) * STRINGS_PER_DATA_LINE, len(flat))
-            )
-        for n, j in enumerate(data_idx):
-            want = flat[n * STRINGS_PER_DATA_LINE : (n + 1) * STRINGS_PER_DATA_LINE]
-            if STRING_RE.findall(lines[j]) == want:
-                continue  # untouched by the author - leave the line byte-identical
-            lines[j] = format_data_line(want)
-            changed += 1
-
-    write_source(bas_path, "\n".join(lines), had_bom)
-    return changed
-
-
-# --- emit / strip: JSON as the source of truth -------------------------------
-
 GENERATED_BANNER = (
     "REM =========================================================================\n"
     "REM  GENERATED FILE - DO NOT EDIT\n"
@@ -203,9 +162,7 @@ def emit(doc, source_name="story/dialogue.json"):
     """Render the ten label + DATA blocks as an INCLUDE-able .bas."""
     out = [GENERATED_BANNER % source_name, ""]
     for char in doc["characters"]:
-        out.append(
-            "REM --- %s (%s)" % (char["name"].upper(), char["side"])
-        )
+        out.append("REM --- %s (%s)" % (char["name"].upper(), char["side"]))
         out.append("%s:" % char["label"])
         flat = [s for balloon in char["balloons"] for s in balloon]
         for n in range(0, len(flat), STRINGS_PER_DATA_LINE):
@@ -274,39 +231,6 @@ def lint(doc):
     return problems
 
 
-# --- verify -----------------------------------------------------------------
-
-
-def verify(bas_path):
-    import shutil
-    import tempfile
-
-    original = Path(bas_path).read_bytes()
-    doc = extract(bas_path)
-
-    with tempfile.TemporaryDirectory() as tmp:
-        scratch = Path(tmp) / "scratch.bas"
-        shutil.copy(bas_path, scratch)
-        inject(scratch, doc)
-        rebuilt = scratch.read_bytes()
-
-    balloons = sum(len(c["balloons"]) for c in doc["characters"])
-    if rebuilt == original:
-        print(
-            "round trip OK - %d characters, %d balloons, %d bytes identical"
-            % (len(doc["characters"]), balloons, len(original))
-        )
-        return 0
-
-    print("ROUND TRIP FAILED - regenerated file differs from the original")
-    o = original.decode("utf-8-sig").split("\n")
-    r = rebuilt.decode("utf-8-sig").split("\n")
-    for n, (a, b) in enumerate(zip(o, r), 1):
-        if a != b:
-            print("  line %d:\n    was: %r\n    got: %r" % (n, a, b))
-    return 1
-
-
 # --- cli --------------------------------------------------------------------
 
 
@@ -327,18 +251,6 @@ def main(argv):
         )
         return 0
 
-    if cmd == "inject" and len(argv) == 4:
-        doc = json.loads(Path(argv[3]).read_text())
-        problems = lint(doc)
-        if problems:
-            print("refusing to inject - fix these first:")
-            for p in problems:
-                print("  " + p)
-            return 1
-        changed = inject(argv[2], doc)
-        print("injected into %s - %d DATA lines rewritten" % (argv[2], changed))
-        return 0
-
     if cmd == "lint" and len(argv) == 3:
         doc = json.loads(Path(argv[2]).read_text())
         problems = lint(doc)
@@ -346,25 +258,6 @@ def main(argv):
             print(p)
         print("%d problem(s)" % len(problems))
         return 1 if problems else 0
-
-    if cmd == "verify" and len(argv) == 3:
-        return verify(argv[2])
-
-    if cmd == "check" and len(argv) == 4:
-        from_bas = extract(argv[2])
-        from_json = json.loads(Path(argv[3]).read_text())
-        a = {c["label"]: c["balloons"] for c in from_bas["characters"]}
-        b = {c["label"]: c["balloons"] for c in from_json["characters"]}
-        if a == b:
-            print("in sync - %s and %s agree" % (argv[2], argv[3]))
-            return 0
-        print("DRIFT - %s and %s disagree:" % (argv[2], argv[3]))
-        for label in sorted(set(a) | set(b)):
-            if a.get(label) != b.get(label):
-                for i, (x, y) in enumerate(zip(a.get(label, []), b.get(label, []))):
-                    if x != y:
-                        print("  %s balloon %d: bas=%r json=%r" % (label, i, x, y))
-        return 1
 
     if cmd == "emit" and len(argv) == 4:
         doc = json.loads(Path(argv[2]).read_text())

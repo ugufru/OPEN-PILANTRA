@@ -51,7 +51,7 @@ else
 endif
 
 .PHONY: all run run-en run-br compare clean distclean toolchain deps \
-        dialogue-extract dialogue-inject dialogue-lint dialogue-verify
+        dialogue-extract dialogue-lint
 
 all: $(DSK)
 
@@ -63,20 +63,11 @@ $(GENDLG): $(STORY) tools/dialogue.py
 $(BUILDSRC): $(SOURCE) tools/dialogue.py
 	python3 tools/dialogue.py strip $(SOURCE) $@ $(GENDLG)
 
-dialogue-check:                         ## fail if the .bas and JSON disagree
-	python3 tools/dialogue.py check $(SOURCE) $(STORY)
-
-dialogue-extract:                       ## .bas -> JSON
-	python3 tools/dialogue.py extract $(SOURCE) $(STORY)
-
-dialogue-inject: dialogue-lint          ## JSON -> .bas (in place)
-	python3 tools/dialogue.py inject $(SOURCE) $(STORY)
-
 dialogue-lint:                          ## check the authoring constraints
 	python3 tools/dialogue.py lint $(STORY)
 
-dialogue-verify:                        ## prove the round trip is byte-exact
-	python3 tools/dialogue.py verify $(SOURCE)
+dialogue-extract:                       ## re-derive the JSON from the .bas
+	python3 tools/dialogue.py extract $(SOURCE) $(STORY)
 
 $(DSK): $(BUILDSRC) $(GENDLG) | $(UGBC) $(ASM6809) $(DECB)
 	@mkdir -p $(BUILD)

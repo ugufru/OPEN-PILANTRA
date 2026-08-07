@@ -112,9 +112,9 @@ OPIL-source.bas ─────strip───>  src/opil.bas ──────�
                                 (INCLUDEs the above)
 ```
 
-`src/` and `generated/` are build artifacts and gitignored. `OPIL-source.bas`
-stays a complete, standalone, hand-edited file — it still contains the dialogue
-and still compiles on its own, so it remains the copy you would offer upstream.
+`src/` and `generated/` are build artifacts and gitignored. **The build only
+ever reads `OPIL-source.bas`** — it is never written to, and the `DATA` blocks
+still in it are simply ignored.
 
 | Edit this | For |
 | --- | --- |
@@ -122,16 +122,9 @@ and still compiles on its own, so it remains the copy you would offer upstream.
 | `OPIL-source.bas` | code, graphics, timing |
 
 ```sh
-make dialogue-lint       # check the authoring constraints
-make dialogue-check      # fail if the .bas and JSON have drifted apart
-make dialogue-extract    # .bas -> JSON  (re-sync after editing the .bas)
-make dialogue-inject     # JSON -> .bas  (re-sync after editing the JSON)
-make dialogue-verify     # prove the round trip is byte-exact
+make dialogue-lint       # check the authoring constraints before building
+make dialogue-extract    # re-derive the JSON from the .bas, if you ever need to
 ```
-
-Because both files hold the text, they can drift. `make dialogue-check` is the
-guard: it fails the moment they disagree, and `extract` / `inject` resync in
-whichever direction you want.
 
 That `INCLUDE` is safe to rely on: compiling the same program with the `DATA`
 inline and with it included emits **byte-identical code** — verified on a
