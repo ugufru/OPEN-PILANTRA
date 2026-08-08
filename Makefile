@@ -1,7 +1,7 @@
 # OPEN PILANTRA — build
 #
 #   make toolchain   one-time: fetch and build ugbc.coco, asm6809 and decb
-#   make             compile OPIL-source.bas to build/OPIL.dsk
+#   make             compile to build/OPIL.dsk from story/ and art/
 #   make run         compile, then boot it in XRoar
 #   make run-en      boot the shipped OPIL-EN.dsk
 #   make run-br      boot the shipped OPIL_BR.dsk
@@ -11,11 +11,10 @@
 #
 # The default target never writes to the committed .dsk images.
 
-# OPIL-source.bas is the complete, standalone, hand-edited source - the copy you
-# would offer upstream. story/dialogue.json is the source of truth for TEXT.
-# The build strips the DATA blocks out of the former and re-supplies them from
-# the latter, so dialogue is genuinely sourced from JSON.
-SOURCE      := OPIL-source.bas
+# original/ holds the author's files, read-only to the build. story/dialogue.json
+# and art/*.png are the sources of truth: the build strips the DATA blocks and DIM
+# arrays out of the original source and re-supplies both from those.
+SOURCE      := original/OPIL-source.bas
 STORY       := story/dialogue.json
 GENDIR      := generated
 GENDLG      := $(GENDIR)/dialogue.bas
@@ -93,18 +92,18 @@ run: $(DSK)
 	$(XROAR) $(XROAR_FLAGS) -load-fd0 $(DSK) -timeout $(TIMEOUT) $(XROAR_RUN)
 
 run-en:
-	$(XROAR) $(XROAR_FLAGS) -load-fd0 OPIL-EN.dsk -timeout $(TIMEOUT) $(XROAR_RUN)
+	$(XROAR) $(XROAR_FLAGS) -load-fd0 original/OPIL-EN.dsk -timeout $(TIMEOUT) $(XROAR_RUN)
 
 run-br:
-	$(XROAR) $(XROAR_FLAGS) -load-fd0 OPIL_BR.dsk -timeout $(TIMEOUT) $(XROAR_RUN)
+	$(XROAR) $(XROAR_FLAGS) -load-fd0 original/OPIL_BR.dsk -timeout $(TIMEOUT) $(XROAR_RUN)
 
 # A freshly built image will NOT be byte-identical to the shipped one - the
 # originals were produced by an older ugbc. Structure is what should match:
 # same size, and a directory of LOADER.BAS + P + P.00 + P.01.
 compare: $(DSK)
-	@echo "size:   shipped $$(wc -c < OPIL-EN.dsk)  built $$(wc -c < $(DSK))"
-	@echo "differing bytes: $$(cmp -l OPIL-EN.dsk $(DSK) 2>/dev/null | wc -l)"
-	@echo "--- shipped directory ---"; od -A d -c -j 78848 -N 160 OPIL-EN.dsk | grep -v '^\*'
+	@echo "size:   shipped $$(wc -c < original/OPIL-EN.dsk)  built $$(wc -c < $(DSK))"
+	@echo "differing bytes: $$(cmp -l original/OPIL-EN.dsk $(DSK) 2>/dev/null | wc -l)"
+	@echo "--- shipped directory ---"; od -A d -c -j 78848 -N 160 original/OPIL-EN.dsk | grep -v '^\*'
 	@echo "--- built directory ---";   od -A d -c -j 78848 -N 160 $(DSK)      | grep -v '^\*'
 
 clean:

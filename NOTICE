@@ -8,11 +8,11 @@ straight when reusing anything from it.
 1. The original demo — © Erico Patricio Monteiro (FUED.NET), 2026
 -----------------------------------------------------------------
 
-    OPIL-source.bas         ugBASIC source for the demo
-    OPIL-EN.dsk             English build, RS-DOS disk image
-    OPIL_BR.dsk             Brazilian Portuguese build (the original)
-    OPEN PILANTRA.pdf       the author's manual
-    docs/art/*.png          figures clipped from that manual
+    original/OPIL-source.bas         ugBASIC source for the demo
+    original/OPIL-EN.dsk             English build, RS-DOS disk image
+    original/OPIL_BR.dsk             Brazilian Portuguese build (the original)
+    original/OPEN PILANTRA.pdf       the author's manual
+    original/figures/*.png           figures clipped from that manual
 
 Written, drawn, scripted and documented by Erico Patricio Monteiro, who
 releases under the name FUED.NET.

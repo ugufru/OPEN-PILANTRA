@@ -7,9 +7,9 @@ README, the authoring guide and other documentation, the Makefile and build
 tooling, the contribution policy, the issue tracker, and the emulator screen
 captures under docs/screens/.
 
-IT DOES NOT APPLY TO the OPEN PILANTRA demo itself — OPIL-source.bas, the
-OPIL-EN.dsk and OPIL_BR.dsk disk images, "OPEN PILANTRA.pdf", or the figures
-under docs/art/ that are clipped from that manual. Those remain the work of
+IT DOES NOT APPLY TO the OPEN PILANTRA demo itself — original/OPIL-source.bas, the
+original/OPIL-EN.dsk and original/OPIL_BR.dsk disk images, "original/OPEN PILANTRA.pdf", or the figures
+under original/figures/ that are clipped from that manual. Those remain the work of
 Erico Patricio Monteiro (FUED.NET) and are mirrored here under the terms
 described in the NOTICE file. See NOTICE for details.
 

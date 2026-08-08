@@ -9,11 +9,12 @@ The manual ends with an invitation and a question:
 > *Does the author's story matter more, or the one we create for ourselves?*
 
 This document is the missing half of that invitation — **how** to actually do
-it. Everything below is verified against `OPIL-source.bas` and the shipped disk
-images.
+it. Everything below is verified against `original/OPIL-source.bas` and the shipped
+disk images.
 
-If you want to know *why* the demo works the way it does, read the
-[README](../README.md). This is the practical guide.
+If you want to know *why* the demo works the way it does, read
+[the analysis of the original](../original/README.md). This is the practical
+guide.
 
 ---
 
@@ -64,7 +65,7 @@ characters are not interchangeable** — the code picks one from each side.
 | Right | `ch2=3` | `isact:` | `isac()` | Isac |
 | Right | `ch2=4` | `shont:` | `shon()` | Shonuf |
 
-![The ten characters and their dialogue tables](art/npc-roster.png)
+![The ten characters and their dialogue tables](../original/figures/npc-roster.png)
 
 *The full roster from the original manual — each portrait beside its `DATA`
 block. Left column are the left-side characters, right column the right-side
@@ -196,8 +197,8 @@ make run
 
 That's the whole loop — roughly a minute to rebuild and boot.
 
-The `DATA` blocks are still present in `OPIL-source.bas`, but the build ignores
-them — editing them there has no effect. Change the JSON.
+The `DATA` blocks are still present in `original/OPIL-source.bas`, but the build
+ignores them — editing them there has no effect. Change the JSON.
 
 ---
 
@@ -239,12 +240,12 @@ The only difference between left and right is `+16`.
 The manual recommends **SGEditor** by Simon Jonassen:
 <https://daftspaniel.neocities.org/tools/sgeditremix/>
 
-![SGEditor](art/sgeditor.png)
+![SGEditor](../original/figures/sgeditor.png)
 
 *SGEditor — pick a tile on the right, paint on the left. Works online or
 offline.*
 
-![CSV export](art/sgeditor-csv.png)
+![CSV export](../original/figures/sgeditor-csv.png)
 
 *Export as CSV and you have the byte list ready to paste into a `DIM`.*
 
@@ -253,7 +254,7 @@ The original workflow was: **draw in Photoshop first, then redraw in SGEditor**
 
 For reference, every SG4 tile ID at once:
 
-![All SG4 characters, ID 0-255](art/sg4-charset.png)
+![All SG4 characters, ID 0-255](../original/figures/sg4-charset.png)
 
 *IDs 0–255. The top rows are text; 128–255 are the graphics tiles you want.*
 
@@ -407,11 +408,11 @@ lit row or the dark row of the same array. Varying the `WAIT` between passes
 
 Two balloon types, and the difference is only three `POKE`s.
 
-![Speech balloon](art/balloon-speech.png)
+![Speech balloon](../original/figures/balloon-speech.png)
 
 *Two characters present — a solid stepped tail. Someone is speaking.*
 
-![Thought balloon](art/balloon-thought.png)
+![Thought balloon](../original/figures/balloon-thought.png)
 
 *One character alone — separate dots trailing up. They're thinking.*
 

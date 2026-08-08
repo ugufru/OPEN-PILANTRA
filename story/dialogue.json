@@ -1,5 +1,5 @@
 {
-  "_comment": "Dialogue for OPEN PILANTRA. Each balloon is [line1, line2]; use \" \" (a single space) for a blank second line, not \"\". Constraints: 20 balloons per character, max 13 characters per line. Edit here, then: python3 tools/dialogue.py inject OPIL-source.bas story/dialogue.json",
+  "_comment": "Dialogue for OPEN PILANTRA. Each balloon is [line1, line2]; use \" \" (a single space) for a blank second line, not \"\". Constraints: 20 balloons per character, max 13 characters per line. This file is the source of truth for text; the build emits the DATA blocks from it. Edit here, then run make.",
   "characters": [
     {
       "label": "manot",
