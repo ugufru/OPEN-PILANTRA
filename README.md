@@ -132,6 +132,12 @@ make dialogue-extract    # re-derive the JSON from the .bas, if you ever need to
 make art-extract         # re-derive the PNGs from the .bas
 ```
 
+> Those two `extract` targets were how `story/` and `art/` were bootstrapped out
+> of the original source. They read the `.bas` and **overwrite** the JSON and the
+> PNGs — and the `.bas` no longer tracks either, so running them now discards
+> whatever you have written or drawn. They are here for reference, not for
+> day-to-day use.
+
 The art PNGs are **indexed**: one pixel per SG4 quadrant, and the pixel value
 *is* the palette index. So the round trip never depends on matching RGB, and the
 palette is cosmetic — retune it without invalidating any artwork. Anything the

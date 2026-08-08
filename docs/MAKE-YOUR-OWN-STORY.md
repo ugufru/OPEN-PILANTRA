@@ -271,24 +271,12 @@ IF ch2=0 THEN POKE 1040+x+y*32, chav(x+y*16)
 
 The only difference between left and right is `+16`.
 
-### Bringing in SGEditor work
+### Designing the silhouette
 
-The author drew in **Photoshop first, then redrew in SGEditor** — design the
-silhouette with real tools, then translate to tiles. That remains good advice,
-and SGEditor is still the best tile editor for this:
-<https://daftspaniel.neocities.org/tools/sgeditremix/>
-
-Its CSV export used to be pasted straight into a `DIM`. It cannot be any more,
-because the build reads the PNGs. To bring the work in, paste the CSV into the
-matching `DIM` in `original/OPIL-source.bas`, then:
-
-```sh
-make art-extract        # regenerates every PNG from the .bas
-```
-
-That overwrites **all** the PNGs, so do it before you have unsaved PNG edits,
-not after. The full SGEditor workflow is in
-[the reference guide](../original/AUTHORING-REFERENCE.md).
+The author drew in **Photoshop first, then redrew in SGEditor** — work out the
+shape with real tools, then translate it to tiles. The translating step is now
+just painting the PNG, but the advice still holds: at 15×10 tiles the silhouette
+is the whole design, and it's easier to find at a comfortable size first.
 
 For reference, every SG4 tile ID at once:
 
@@ -386,8 +374,9 @@ Then in the data files:
 
 6. `story/dialogue.json` — a new character entry with exactly 20 balloons
 7. `tools/art.py` — add the array to its `STRIDES` table
-8. `make art-extract` to generate `art/newguy.png` and its manifest entry, then
-   paint over it
+8. `art/newguy.png` — copy an existing portrait as a starting point, and add a
+   matching entry to `art/manifest.json` (`stride` 16, `rows` 11, `bytes` 176,
+   `as_byte` true, `visible_width` 15)
 
 Miss any one and you get a character who is invisible, mute, or speaks in
 someone else's voice.
