@@ -1,0 +1,136 @@
+{
+  "_comment": "Shape and provenance for the PNGs beside this file. Indexed PNGs, one pixel per SG4 quadrant; index 0 is off, 1..8 are SG4 colours 0..7, index 9 marks a literal non-SG4 byte listed under 'literals' as 'row,col': value. 'stride' is the tile width, which the DIM arrays do not record - it comes from the draw loops. 'visible_width' is how many columns the demo actually draws.",
+  "arrays": {
+    "capt": {
+      "stride": 16,
+      "rows": 11,
+      "bytes": 176,
+      "visible_width": 15,
+      "literals": {
+        "6,1": 32,
+        "6,2": 32,
+        "7,1": 32,
+        "7,2": 32,
+        "7,3": 32,
+        "7,4": 32,
+        "7,9": 32,
+        "7,10": 32,
+        "8,1": 32,
+        "8,2": 32,
+        "8,3": 32,
+        "8,4": 32,
+        "8,9": 32,
+        "8,10": 32,
+        "9,2": 32,
+        "9,3": 32,
+        "9,4": 32,
+        "9,9": 32,
+        "9,10": 32,
+        "10,2": 32,
+        "10,3": 32,
+        "10,4": 32,
+        "10,9": 32,
+        "10,10": 32
+      }
+    },
+    "chav": {
+      "stride": 16,
+      "rows": 11,
+      "bytes": 176,
+      "visible_width": 15
+    },
+    "citi": {
+      "stride": 64,
+      "rows": 14,
+      "bytes": 896
+    },
+    "dock": {
+      "stride": 64,
+      "rows": 14,
+      "bytes": 896
+    },
+    "elec": {
+      "stride": 16,
+      "rows": 11,
+      "bytes": 176,
+      "visible_width": 15
+    },
+    "isac": {
+      "stride": 16,
+      "rows": 11,
+      "bytes": 176,
+      "visible_width": 15
+    },
+    "john": {
+      "stride": 16,
+      "rows": 11,
+      "bytes": 176,
+      "visible_width": 15
+    },
+    "kuro": {
+      "stride": 16,
+      "rows": 11,
+      "bytes": 176,
+      "visible_width": 15
+    },
+    "mano": {
+      "stride": 16,
+      "rows": 11,
+      "bytes": 176,
+      "visible_width": 15
+    },
+    "midl": {
+      "stride": 64,
+      "rows": 14,
+      "bytes": 896
+    },
+    "minh": {
+      "stride": 16,
+      "rows": 11,
+      "bytes": 176,
+      "visible_width": 15
+    },
+    "safe": {
+      "stride": 19,
+      "rows": 15,
+      "bytes": 285
+    },
+    "shon": {
+      "stride": 16,
+      "rows": 11,
+      "bytes": 176,
+      "visible_width": 15
+    },
+    "spac": {
+      "stride": 64,
+      "rows": 14,
+      "bytes": 896
+    },
+    "suitA": {
+      "stride": 32,
+      "rows": 9,
+      "bytes": 288
+    },
+    "suitB": {
+      "stride": 14,
+      "rows": 12,
+      "bytes": 168
+    },
+    "til": {
+      "stride": 14,
+      "rows": 7,
+      "bytes": 98
+    },
+    "ugb": {
+      "stride": 32,
+      "rows": 8,
+      "bytes": 256
+    },
+    "wolf": {
+      "stride": 16,
+      "rows": 11,
+      "bytes": 176,
+      "visible_width": 15
+    }
+  }
+}

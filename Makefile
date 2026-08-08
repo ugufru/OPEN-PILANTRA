@@ -51,7 +51,7 @@ else
 endif
 
 .PHONY: all run run-en run-br compare clean distclean toolchain deps \
-        dialogue-extract dialogue-lint
+        dialogue-extract dialogue-lint art-extract
 
 all: $(DSK)
 
@@ -68,6 +68,12 @@ dialogue-lint:                          ## check the authoring constraints
 
 dialogue-extract:                       ## re-derive the JSON from the .bas
 	python3 tools/dialogue.py extract $(SOURCE) $(STORY)
+
+# --- graphics as data -------------------------------------------------------
+ART := art
+
+art-extract:                            ## re-derive the PNGs from the .bas
+	python3 tools/art.py extract $(SOURCE) $(ART)
 
 $(DSK): $(BUILDSRC) $(GENDLG) | $(UGBC) $(ASM6809) $(DECB)
 	@mkdir -p $(BUILD)
