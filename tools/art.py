@@ -77,22 +77,27 @@ LITERAL = 9
 LITERAL_RENDERS_AS = {32: 1}  # 1 = SG4 green
 
 ARRAY_RE = re.compile(
-    r"^DIM\s+(\w+)\((\d+)\)\s*(?:AS\s+BYTE\s*)?=#\{([^}]*)\}", re.M)
+    r"^DIM\s+(\w+)\((\d+)\)\s*(AS\s+BYTE\s*)?=#\{([^}]*)\}", re.M)
 
 
 def parse_arrays(bas_path):
-    """Return {name: [byte, ...]} for every DIM byte array in the source."""
+    """Return {name: (bytes, as_byte)} for every DIM byte array in the source.
+
+    Two arrays - ugb and til - are declared without `AS BYTE`. Whether that
+    matters to codegen is not worth guessing at, so the declaration form is
+    preserved rather than normalised."""
     text = Path(bas_path).read_text(encoding="utf-8-sig").replace("_\n", "")
     arrays = {}
     for m in ARRAY_RE.finditer(text):
-        name, declared, body = m.group(1), int(m.group(2)), m.group(3)
+        name, declared, as_byte, body = (
+            m.group(1), int(m.group(2)), bool(m.group(3)), m.group(4))
         values = [v.strip() for v in body.split(",") if v.strip()]
         nums = [int(v[1:], 16) if v.startswith("$") else int(v) for v in values]
         if len(nums) != declared:
             raise SystemExit(
                 "%s: DIM says %d bytes, found %d" % (name, declared, len(nums))
             )
-        arrays[name] = nums
+        arrays[name] = (nums, as_byte, len(arrays))
     return arrays
 
 
@@ -109,6 +114,19 @@ def tile_pixels(byte):
     )
 
 
+def decode_tile(pixels):
+    """((tl, tr), (bl, br)) palette indices -> the tile byte, or None."""
+    (tl, tr), (bl, br) = pixels
+    quad = [tl, tr, bl, br]
+    lit = [q for q in quad if q]
+    if not lit:
+        return 128
+    if len(set(lit)) != 1 or lit[0] == LITERAL:
+        return None
+    bits = sum(b for q, b in zip(quad, (8, 4, 2, 1)) if q)
+    return 128 + (lit[0] - 1) * 16 + bits
+
+
 def to_png(nums, stride):
     """Render an array as an indexed image, plus any literal bytes found."""
     rows = len(nums) // stride
@@ -122,7 +140,12 @@ def to_png(nums, stride):
     px = img.load()
     for i, byte in enumerate(nums):
         r, c = divmod(i, stride)
-        if byte < 128:
+        # Record anything the pixel encoding cannot reproduce, rather than
+        # trusting a rule about what is representable. Two cases arise in this
+        # source: text-mode bytes below 128, and tiles that carry a colour but
+        # light no quadrants (144, 192) which are indistinguishable from an
+        # empty cell once drawn.
+        if decode_tile(tile_pixels(byte)) != byte:
             literals["%d,%d" % (r, c)] = byte
         (tl, tr), (bl, br) = tile_pixels(byte)
         px[c * 2, r * 2] = tl
@@ -144,7 +167,10 @@ def extract(bas_path, out_dir):
             "0..7, index 9 marks a literal non-SG4 byte listed under 'literals' "
             "as 'row,col': value. 'stride' is the tile width, which the DIM "
             "arrays do not record - it comes from the draw loops. "
-            "'visible_width' is how many columns the demo actually draws."
+            "'visible_width' is how many columns the demo actually draws. "
+            "'order' preserves the declaration order of the original source, "
+            "and 'as_byte' its DIM form - ugb and til omit AS BYTE and really "
+            "are 16-bit arrays, so normalising them would change codegen."
         ),
         "arrays": {},
     }
@@ -155,7 +181,7 @@ def extract(bas_path, out_dir):
 
     for name in sorted(arrays):
         stride = STRIDES[name]
-        nums = arrays[name]
+        nums, as_byte, order = arrays[name]
         if len(nums) % stride:
             raise SystemExit(
                 "%s: %d bytes is not a multiple of stride %d"
@@ -163,7 +189,8 @@ def extract(bas_path, out_dir):
             )
         img, literals, rows = to_png(nums, stride)
         img.save(out / ("%s.png" % name))
-        entry = {"stride": stride, "rows": rows, "bytes": len(nums)}
+        entry = {"order": order, "stride": stride, "rows": rows,
+                 "bytes": len(nums), "as_byte": as_byte}
         if name in VISIBLE_WIDTH:
             entry["visible_width"] = VISIBLE_WIDTH[name]
         if literals:
@@ -179,10 +206,145 @@ def extract(bas_path, out_dir):
     print("%d arrays -> %s" % (len(arrays), out))
 
 
+# --- emit / strip: what the build actually uses ------------------------------
+
+GENERATED_BANNER = (
+    "REM =========================================================================\n"
+    "REM  GENERATED FILE - DO NOT EDIT\n"
+    "REM  Emitted from %s by tools/art.py.\n"
+    "REM  Edit the PNGs there; this file is rebuilt on every make.\n"
+    "REM ========================================================================="
+)
+
+PER_LINE = 16
+
+
+def pixels_to_bytes(img, stride, rows, literals):
+    """Indexed PNG -> the original tile bytes."""
+    if img.mode != "P":
+        raise SystemExit("expected an indexed PNG, got mode %s" % img.mode)
+    if img.size != (stride * 2, rows * 2):
+        raise SystemExit(
+            "expected %dx%d px, got %dx%d"
+            % (stride * 2, rows * 2, img.size[0], img.size[1])
+        )
+    px = img.load()
+    out = []
+    for r in range(rows):
+        for c in range(stride):
+            literal = literals.get("%d,%d" % (r, c))
+            if literal is not None:
+                out.append(literal)
+                continue
+            quad = [
+                px[c * 2, r * 2],          # bit 3
+                px[c * 2 + 1, r * 2],      # bit 2
+                px[c * 2, r * 2 + 1],      # bit 1
+                px[c * 2 + 1, r * 2 + 1],  # bit 0
+            ]
+            lit = [q for q in quad if q]
+            if not lit:
+                out.append(128)            # all quadrants off = empty cell
+                continue
+            if len(set(lit)) != 1:
+                raise SystemExit(
+                    "tile at row %d col %d mixes palette indices %s - an SG4 "
+                    "cell can only hold one colour" % (r, c, sorted(set(lit)))
+                )
+            colour = lit[0] - 1
+            bits = sum(b for q, b in zip(quad, (8, 4, 2, 1)) if q)
+            out.append(128 + colour * 16 + bits)
+    return out
+
+
+def format_array(name, nums, as_byte):
+    kind = " AS BYTE" if as_byte else ""
+    head = "DIM %s(%d)%s =#{" % (name, len(nums), kind)
+    lines = []
+    for n in range(0, len(nums), PER_LINE):
+        lines.append(",".join(str(v) for v in nums[n : n + PER_LINE]))
+    pad = "\t" * 4
+    body = (",_\n" + pad).join(lines)
+    return head + body + "}"
+
+
+def emit(art_dir):
+    art = Path(art_dir)
+    manifest = json.loads((art / "manifest.json").read_text())
+    out = [GENERATED_BANNER % art_dir, ""]
+    ordered = sorted(manifest["arrays"].items(),
+                     key=lambda kv: kv[1].get("order", 0))
+    for name, meta in ordered:
+        img = Image.open(art / ("%s.png" % name))
+        nums = pixels_to_bytes(
+            img, meta["stride"], meta["rows"], meta.get("literals", {})
+        )
+        if len(nums) != meta["bytes"]:
+            raise SystemExit(
+                "%s: rebuilt %d bytes, manifest says %d"
+                % (name, len(nums), meta["bytes"])
+            )
+        out.append(format_array(name, nums, meta.get("as_byte", True)))
+        out.append("")
+    return "\n".join(out) + "\n", len(manifest["arrays"])
+
+
+def strip(bas_path, include_path):
+    """Return the source with every DIM byte array replaced by one INCLUDE."""
+    raw = Path(bas_path).read_bytes()
+    had_bom = raw.startswith(b"\xef\xbb\xbf")
+    text = raw[3:].decode("ascii") if had_bom else raw.decode("ascii")
+    lines = text.split("\n")
+
+    # An array declaration runs from its DIM line until a line without a
+    # trailing continuation underscore.
+    drop, first = set(), None
+    i = 0
+    while i < len(lines):
+        if re.match(r"^DIM\s+\w+\(\d+\)\s*(AS\s+BYTE\s*)?=#\{", lines[i]):
+            if first is None:
+                first = i
+            while i < len(lines):
+                drop.add(i)
+                if not lines[i].rstrip().endswith("_"):
+                    break
+                i += 1
+        i += 1
+
+    if first is None:
+        raise SystemExit("%s: found no DIM byte arrays to strip" % bas_path)
+
+    out = []
+    for n, line in enumerate(lines):
+        if n == first:
+            out.append('INCLUDE "%s"' % include_path)
+        if n not in drop:
+            out.append(line)
+    return "\n".join(out), had_bom
+
+
 def main(argv):
     if len(argv) == 4 and argv[1] == "extract":
         extract(argv[2], argv[3])
         return 0
+
+    if len(argv) == 4 and argv[1] == "emit":
+        text, count = emit(argv[2])
+        Path(argv[3]).parent.mkdir(parents=True, exist_ok=True)
+        Path(argv[3]).write_text(text)
+        print("emitted %d arrays -> %s" % (count, argv[3]))
+        return 0
+
+    if len(argv) == 5 and argv[1] == "strip":
+        text, had_bom = strip(argv[2], argv[4])
+        Path(argv[3]).parent.mkdir(parents=True, exist_ok=True)
+        data = text.encode("ascii")
+        Path(argv[3]).write_bytes(b"\xef\xbb\xbf" + data if had_bom else data)
+        left = sum(1 for l in text.split("\n") if re.match(r"^DIM\s+\w+\(\d+\)", l))
+        print('stripped %s -> %s (INCLUDE "%s", %d DIM arrays left)'
+              % (argv[2], argv[3], argv[4], left))
+        return 0
+
     print(__doc__)
     return 2
 

@@ -98,18 +98,20 @@ package manager. Windows is not covered here — ugBASIC ships official binaries
 for it, so `make toolchain` is unnecessary; use `ugbc.coco.exe` directly with
 the same arguments.
 
-### Where the dialogue lives
+### Where the content lives
 
-**`story/dialogue.json` is the source of truth for all text.** The build strips
-the `DATA` blocks out of `OPIL-source.bas`, re-emits them from the JSON, and
-`INCLUDE`s the result — so the words that reach the screen come from the JSON,
-not the BASIC file.
+**`story/dialogue.json` and `art/*.png` are the sources of truth.** The build
+lifts the `DATA` blocks and the `DIM` byte arrays out of `OPIL-source.bas`,
+re-emits both from those files, and `INCLUDE`s the results — so the words and
+the pixels that reach the screen come from the JSON and the PNGs, not from the
+BASIC file.
 
 ```
 story/dialogue.json  ──emit──>  generated/dialogue.bas ─┐
+art/*.png ───────────emit──>    generated/art.bas ──────┤
                                                         ├─> ugbc ─> build/OPIL.dsk
 OPIL-source.bas ─────strip───>  src/opil.bas ───────────┘
-                                (INCLUDEs the above)
+                                (INCLUDEs both)
 ```
 
 `src/` and `generated/` are build artifacts and gitignored. **The build only
@@ -119,12 +121,25 @@ still in it are simply ignored.
 | Edit this | For |
 | --- | --- |
 | `story/dialogue.json` | anything a character says |
-| `OPIL-source.bas` | code, graphics, timing |
+| `art/*.png` | portraits, backgrounds, props, the title |
+| `OPIL-source.bas` | code, timing, scene logic |
 
 ```sh
 make dialogue-lint       # check the authoring constraints before building
 make dialogue-extract    # re-derive the JSON from the .bas, if you ever need to
+make art-extract         # re-derive the PNGs from the .bas
 ```
+
+The art PNGs are **indexed**: one pixel per SG4 quadrant, and the pixel value
+*is* the palette index. So the round trip never depends on matching RGB, and the
+palette is cosmetic — retune it without invalidating any artwork. Anything the
+pixel encoding cannot represent (text-mode bytes, or a tile with a colour but no
+lit quadrants) is recorded in `art/manifest.json`, which also carries the tile
+stride, since the `DIM` arrays do not record their own shape.
+
+This whole path is verified by construction: `src/opil.bas` built from the JSON
+and the PNGs compiles to **byte-identical assembly** with `OPIL-source.bas` —
+6720 instructions, zero differences.
 
 That `INCLUDE` is safe to rely on: compiling the same program with the `DATA`
 inline and with it included emits **byte-identical code** — verified on a

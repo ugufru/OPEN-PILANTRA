@@ -19,6 +19,7 @@ SOURCE      := OPIL-source.bas
 STORY       := story/dialogue.json
 GENDIR      := generated
 GENDLG      := $(GENDIR)/dialogue.bas
+GENART      := $(GENDIR)/art.bas
 BUILDSRC    := src/opil.bas
 BUILD       := build
 DSK         := $(BUILD)/OPIL.dsk
@@ -60,8 +61,13 @@ all: $(DSK)
 $(GENDLG): $(STORY) tools/dialogue.py
 	python3 tools/dialogue.py emit $(STORY) $@
 
-$(BUILDSRC): $(SOURCE) tools/dialogue.py
-	python3 tools/dialogue.py strip $(SOURCE) $@ $(GENDLG)
+# The build source is OPIL-source.bas with both its DATA blocks and its DIM
+# byte arrays lifted out, each replaced by an INCLUDE of a generated file.
+$(BUILDSRC): $(SOURCE) tools/dialogue.py tools/art.py
+	@mkdir -p $(dir $@)
+	python3 tools/dialogue.py strip $(SOURCE) $@.tmp $(GENDLG)
+	python3 tools/art.py strip $@.tmp $@ $(GENART)
+	@rm -f $@.tmp
 
 dialogue-lint:                          ## check the authoring constraints
 	python3 tools/dialogue.py lint $(STORY)
@@ -72,10 +78,13 @@ dialogue-extract:                       ## re-derive the JSON from the .bas
 # --- graphics as data -------------------------------------------------------
 ART := art
 
+$(GENART): $(wildcard art/*.png) art/manifest.json tools/art.py
+	python3 tools/art.py emit $(ART) $@
+
 art-extract:                            ## re-derive the PNGs from the .bas
 	python3 tools/art.py extract $(SOURCE) $(ART)
 
-$(DSK): $(BUILDSRC) $(GENDLG) | $(UGBC) $(ASM6809) $(DECB)
+$(DSK): $(BUILDSRC) $(GENDLG) $(GENART) | $(UGBC) $(ASM6809) $(DECB)
 	@mkdir -p $(BUILD)
 	$(UGBC) -C $(ASM6809) -b $(DECB) -o $@ -O dsk $(BUILDSRC)
 	@echo "built $@ ($$(wc -c < $@) bytes)"

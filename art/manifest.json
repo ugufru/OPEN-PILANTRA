@@ -1,10 +1,12 @@
 {
-  "_comment": "Shape and provenance for the PNGs beside this file. Indexed PNGs, one pixel per SG4 quadrant; index 0 is off, 1..8 are SG4 colours 0..7, index 9 marks a literal non-SG4 byte listed under 'literals' as 'row,col': value. 'stride' is the tile width, which the DIM arrays do not record - it comes from the draw loops. 'visible_width' is how many columns the demo actually draws.",
+  "_comment": "Shape and provenance for the PNGs beside this file. Indexed PNGs, one pixel per SG4 quadrant; index 0 is off, 1..8 are SG4 colours 0..7, index 9 marks a literal non-SG4 byte listed under 'literals' as 'row,col': value. 'stride' is the tile width, which the DIM arrays do not record - it comes from the draw loops. 'visible_width' is how many columns the demo actually draws. 'order' preserves the declaration order of the original source, and 'as_byte' its DIM form - ugb and til omit AS BYTE and really are 16-bit arrays, so normalising them would change codegen.",
   "arrays": {
     "capt": {
+      "order": 5,
       "stride": 16,
       "rows": 11,
       "bytes": 176,
+      "as_byte": true,
       "visible_width": 15,
       "literals": {
         "6,1": 32,
@@ -34,102 +36,144 @@
       }
     },
     "chav": {
+      "order": 7,
       "stride": 16,
       "rows": 11,
       "bytes": 176,
+      "as_byte": true,
       "visible_width": 15
     },
     "citi": {
+      "order": 17,
       "stride": 64,
       "rows": 14,
-      "bytes": 896
+      "bytes": 896,
+      "as_byte": true
     },
     "dock": {
+      "order": 16,
       "stride": 64,
       "rows": 14,
-      "bytes": 896
+      "bytes": 896,
+      "as_byte": true
     },
     "elec": {
+      "order": 4,
       "stride": 16,
       "rows": 11,
       "bytes": 176,
+      "as_byte": true,
       "visible_width": 15
     },
     "isac": {
+      "order": 10,
       "stride": 16,
       "rows": 11,
       "bytes": 176,
+      "as_byte": true,
       "visible_width": 15
     },
     "john": {
+      "order": 3,
       "stride": 16,
       "rows": 11,
       "bytes": 176,
+      "as_byte": true,
       "visible_width": 15
     },
     "kuro": {
+      "order": 8,
       "stride": 16,
       "rows": 11,
       "bytes": 176,
+      "as_byte": true,
       "visible_width": 15
     },
     "mano": {
+      "order": 2,
       "stride": 16,
       "rows": 11,
       "bytes": 176,
+      "as_byte": true,
       "visible_width": 15
     },
     "midl": {
+      "order": 15,
       "stride": 64,
       "rows": 14,
-      "bytes": 896
+      "bytes": 896,
+      "as_byte": true
     },
     "minh": {
+      "order": 6,
       "stride": 16,
       "rows": 11,
       "bytes": 176,
+      "as_byte": true,
       "visible_width": 15
     },
     "safe": {
+      "order": 14,
       "stride": 19,
       "rows": 15,
-      "bytes": 285
+      "bytes": 285,
+      "as_byte": true
     },
     "shon": {
+      "order": 11,
       "stride": 16,
       "rows": 11,
       "bytes": 176,
+      "as_byte": true,
       "visible_width": 15
     },
     "spac": {
+      "order": 18,
       "stride": 64,
       "rows": 14,
-      "bytes": 896
+      "bytes": 896,
+      "as_byte": true,
+      "literals": {
+        "1,28": 144
+      }
     },
     "suitA": {
+      "order": 12,
       "stride": 32,
       "rows": 9,
-      "bytes": 288
+      "bytes": 288,
+      "as_byte": true
     },
     "suitB": {
+      "order": 13,
       "stride": 14,
       "rows": 12,
-      "bytes": 168
+      "bytes": 168,
+      "as_byte": true
     },
     "til": {
+      "order": 1,
       "stride": 14,
       "rows": 7,
-      "bytes": 98
+      "bytes": 98,
+      "as_byte": false,
+      "literals": {
+        "4,8": 192
+      }
     },
     "ugb": {
+      "order": 0,
       "stride": 32,
       "rows": 8,
-      "bytes": 256
+      "bytes": 256,
+      "as_byte": false
     },
     "wolf": {
+      "order": 9,
       "stride": 16,
       "rows": 11,
       "bytes": 176,
+      "as_byte": true,
       "visible_width": 15
     }
   }
