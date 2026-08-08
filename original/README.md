@@ -15,6 +15,7 @@ from [the repository README](../README.md).
 | `OPIL_BR.dsk` | Brazilian Portuguese build — the original. |
 | `OPEN PILANTRA.pdf` | The author's manual: setup, tooling, code structure. |
 | `figures/` | Figures clipped from that manual. |
+| `AUTHORING-REFERENCE.md` | How the demo was authored originally — editing the `DATA` blocks and `DIM` arrays by hand. Reference; [the toolchain guide](../docs/MAKE-YOUR-OWN-STORY.md) is how this repo actually builds. |
 
 > One deliberate change: `OPIL-source.bas` carries the two-line fix to the
 > dialogue phrase counter described under

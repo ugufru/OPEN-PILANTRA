@@ -19,7 +19,7 @@ The author's work and this repository's additions are kept apart.
 
 | Path | What it is |
 | --- | --- |
-| **`original/`** | **The author's files, untouched** — source, both disk images, his manual, and [an analysis of how it all works](original/README.md). |
+| **`original/`** | **The author's files, untouched** — source, both disk images, his manual, [an analysis of how it all works](original/README.md), and [how it was authored originally](original/AUTHORING-REFERENCE.md). |
 | `story/dialogue.json` | Every line of dialogue. Source of truth for text. |
 | `art/*.png` | Every portrait, background and prop. Source of truth for graphics. |
 | `Makefile` | Builds a `.dsk` from those two; see [Building](#building). |

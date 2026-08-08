@@ -1,21 +1,25 @@
-# Make Your Own Story
+# Authoring the original way — reference
 
 > *"Open Pilantra is made so people can play around with it, you are free to
 > change graphics, dialogs or add anything you please."*
 > — FUED.NET, the OPEN PILANTRA manual
 
-The manual ends with an invitation and a question:
+This describes how to author OPEN PILANTRA **by editing `OPIL-source.bas`
+directly**, the way the demo was originally made: dialogue in `DATA` blocks,
+graphics as `DIM` byte arrays, tiles drawn in SGEditor and pasted in as CSV.
 
-> *Does the author's story matter more, or the one we create for ourselves?*
+It is kept as reference, alongside the source it describes. Everything in it is
+verified against `OPIL-source.bas` and the shipped disk images.
 
-This document is the missing half of that invitation — **how** to actually do
-it, using this repository's toolchain: **dialogue in JSON, graphics in PNG**,
-one `make` away from a running disk.
+> **This is not how this repository builds the demo.** The build reads
+> `../story/dialogue.json` and `../art/*.png`, and ignores the `DATA` blocks and
+> `DIM` arrays in the source. To actually change what appears on screen, follow
+> **[Make Your Own Story](../docs/MAKE-YOUR-OWN-STORY.md)** instead. Read this
+> one to understand the original design, or if you are working with the author's
+> file standalone.
 
-- Why the demo works the way it does →
-  [the analysis](../original/README.md)
-- How it was authored *originally*, by hand-editing the BASIC →
-  [the reference guide](../original/AUTHORING-REFERENCE.md)
+If you want to know *why* the demo works the way it does, read
+[the analysis](README.md). This is the practical guide.
 
 ---
 
@@ -37,9 +41,9 @@ That constraint is the whole craft, and it's what this guide is mostly about.
 
 | | Effort | What it changes |
 | --- | --- | --- |
-| **Dialogue** | Easy — edit `story/dialogue.json` | Everything the audience reads |
-| **Characters** | Medium — edit `art/*.png`, plus a few addresses | Who's on screen |
-| **Scenery & props** | Medium — edit `art/*.png` | Where it happens |
+| **Dialogue** | Easy — text only | Everything the audience reads |
+| **Characters** | Medium — art + a few addresses | Who's on screen |
+| **Scenery & props** | Medium — art only | Where it happens |
 
 Start with dialogue. You can rewrite the entire script without touching a single
 byte of graphics, and it's the change that most alters the experience.
@@ -66,7 +70,7 @@ characters are not interchangeable** — the code picks one from each side.
 | Right | `ch2=3` | `isact:` | `isac()` | Isac |
 | Right | `ch2=4` | `shont:` | `shon()` | Shonuf |
 
-![The ten characters and their dialogue tables](../original/figures/npc-roster.png)
+![The ten characters and their dialogue tables](figures/npc-roster.png)
 
 *The full roster from the original manual — each portrait beside its `DATA`
 block. Left column are the left-side characters, right column the right-side
@@ -172,92 +176,40 @@ will land differently depending on who it follows. Those are your best lines.
 
 ## Where to edit
 
-**Easiest: edit `story/dialogue.json`.** That file is the source of truth for
-text — the build emits the `DATA` blocks from it, so your words go straight to
-the screen:
+Open `OPIL-source.bas`, find the character's label, and replace the strings
+between the quotes. Keep the tab layout — it is cosmetic, but it is what makes
+the blocks readable.
 
-```json
-{
-  "label": "manot",
-  "name": "Mano Courier",
-  "side": "left",
-  "slot": 0,
-  "balloons": [
-    ["AS I SAID", "ALL FINE"],
-    ["HM, I THINK", "IT WENT SOUTH"]
-  ]
-}
+```basic
+manot:
+DATA "AS I SAID"	,"ALL FINE"		,"HM, I THINK"	,"IT WENT SOUTH"
 ```
 
-Then:
-
-```sh
-make dialogue-lint    # catches over-long lines and miscounts before you build
-make run
-```
-
-That's the whole loop — roughly a minute to rebuild and boot.
-
-The `DATA` blocks are still present in `original/OPIL-source.bas`, but the build
-ignores them — editing them there has no effect. Change the JSON.
-
-*(Authoring by editing those blocks directly is described in
-[the reference guide](../original/AUTHORING-REFERENCE.md).)*
+Then recompile and run. In the original workflow that meant ugBASIC's IDE and
+the BUILD menu; see the author's manual, `OPEN PILANTRA.pdf`.
 
 ---
 
 # 2. Changing the characters
 
-## Edit the PNG, not the BASIC
+## How a portrait is stored
 
-Every graphic lives in `art/` as a PNG, and **that is what the build reads**.
-The `DIM` byte arrays still sitting in `original/OPIL-source.bas` are ignored;
-editing them there changes nothing.
+Each character is a byte array of SG4 tile IDs:
 
-```sh
-open art/mano.png       # edit it
-make run                # see it
+```basic
+DIM mano(176) AS BYTE =#{128,128,128,128,128,167,175,175,128,...
 ```
-
-| File | Is |
-| --- | --- |
-| `art/mano.png` … `art/shon.png` | the ten portraits |
-| `art/midl.png` `dock` `citi` `spac` | the four backgrounds |
-| `art/suitA.png` `suitB.png` `safe.png` | the props |
-| `art/til.png` `ugb.png` | title card and ugBASIC splash |
-| `art/manifest.json` | shape and provenance for all of the above |
-
-### Three rules for editing them
-
-**Keep them indexed.** These are indexed PNGs: one pixel per SG4 quadrant, and
-the pixel *value* is the palette index — 0 is off, 1–8 are SG4 colours 0–7. An
-editor that helpfully converts to RGB on save breaks the round trip. Aseprite
-and GIMP preserve indexed mode; check before committing to a tool.
-
-**Don't resize them.** The dimensions encode the tile grid, and
-`art/manifest.json` records what they should be. A portrait is 32×22 pixels,
-which is 16×11 tiles.
-
-**One colour per 2×2 block.** An SG4 cell holds a single colour, so the four
-pixels of a tile must be that colour or black. Mix two and the build stops with
-`tile at row R col C mixes palette indices` — the tool refusing to guess, not a
-bug.
-
-They are small. A portrait is 32×22 pixels, so use something that zooms with
-nearest-neighbour rather than smoothing.
-
-### Portrait geometry
 
 | Property | Value |
 | --- | --- |
-| PNG size | 32 × 22 px |
-| Tile grid | 16 wide × 11 rows |
-| **Columns actually drawn** | **15** (`x=0..14`) |
-| **Rows actually drawn** | **10** (`y=0..9`) |
+| Array size | 176 bytes |
+| **Row stride** | **16 bytes** |
+| Columns actually drawn | **15** (`x=0..14`) |
+| Rows actually drawn | **10** (`y=0..9`) |
 
-**The 16th column and the 11th row never render.** They are padding. Anything
-painted there is invisible — budget for it rather than losing an edge of your
-art.
+**The stride is 16 but only 15 columns render.** Lay your art out 16 wide and
+the 16th column of every row will be invisible — it's padding. This trips people
+up; budget for it when exporting.
 
 The draw routines are dead simple:
 
@@ -271,28 +223,26 @@ IF ch2=0 THEN POKE 1040+x+y*32, chav(x+y*16)
 
 The only difference between left and right is `+16`.
 
-### Bringing in SGEditor work
+## Drawing the art
 
-The author drew in **Photoshop first, then redrew in SGEditor** — design the
-silhouette with real tools, then translate to tiles. That remains good advice,
-and SGEditor is still the best tile editor for this:
+The manual recommends **SGEditor** by Simon Jonassen:
 <https://daftspaniel.neocities.org/tools/sgeditremix/>
 
-Its CSV export used to be pasted straight into a `DIM`. It cannot be any more,
-because the build reads the PNGs. To bring the work in, paste the CSV into the
-matching `DIM` in `original/OPIL-source.bas`, then:
+![SGEditor](figures/sgeditor.png)
 
-```sh
-make art-extract        # regenerates every PNG from the .bas
-```
+*SGEditor — pick a tile on the right, paint on the left. Works online or
+offline.*
 
-That overwrites **all** the PNGs, so do it before you have unsaved PNG edits,
-not after. The full SGEditor workflow is in
-[the reference guide](../original/AUTHORING-REFERENCE.md).
+![CSV export](figures/sgeditor-csv.png)
+
+*Export as CSV and you have the byte list ready to paste into a `DIM`.*
+
+The original workflow was: **draw in Photoshop first, then redraw in SGEditor**
+— design the silhouette where you have real tools, then translate it to tiles.
 
 For reference, every SG4 tile ID at once:
 
-![All SG4 characters, ID 0-255](../original/figures/sg4-charset.png)
+![All SG4 characters, ID 0-255](figures/sg4-charset.png)
 
 *IDs 0–255. The top rows are text; 128–255 are the graphics tiles you want.*
 
@@ -373,35 +323,17 @@ balloon.
 The count is baked into several places. To add a sixth left-hand character you
 must change **all** of these:
 
-In `original/OPIL-source.bas`:
-
 1. `ch1=RND(5)` → `ch1=RND(6)` in the `dialog:` setup
-2. A new `DIM` array, 176 bytes — the byte values don't matter, but the
-   declaration has to exist for the tooling to find
-3. `drawchrl:` — add `IF ch1=5 THEN POKE 1024+x+y*32, newguy(x+y*16)`
-4. The `RESTORE` chain — add `IF ch1=5 THEN RESTORE newt`
-5. The talking animation — add an `IF ch1=5 THEN:` block with mouth `POKE`s
-
-Then in the data files:
-
-6. `story/dialogue.json` — a new character entry with exactly 20 balloons
-7. `tools/art.py` — add the array to its `STRIDES` table
-8. `make art-extract` to generate `art/newguy.png` and its manifest entry, then
-   paint over it
+2. A new `DATA` block with a new label, exactly 40 strings
+3. A new `DIM` array, 176 bytes
+4. `drawchrl:` — add `IF ch1=5 THEN POKE 1024+x+y*32, newguy(x+y*16)`
+5. The `RESTORE` chain — add `IF ch1=5 THEN RESTORE newt`
+6. The talking animation — add an `IF ch1=5 THEN:` block with mouth `POKE`s
 
 Miss any one and you get a character who is invisible, mute, or speaks in
-someone else's voice.
-
-> **Two traps, one of them silent.** `tools/art.py` carries a hardcoded
-> `STRIDES` table, because the `DIM` arrays don't record their own shape — an
-> array it doesn't know stops extraction with `no stride known for: newguy`,
-> which is the *good* case, because it tells you. The bad case is dropping a PNG
-> into `art/` **without** a manifest entry: `emit` walks the manifest, so a stray
-> file is ignored with no error at all. If new art simply never appears, check
-> `art/manifest.json` first.
-
-Replacing an existing character is far less error-prone: repaint its PNG, swap
-its balloons in the JSON, update the mouth addresses, and nothing else moves.
+someone else's voice. Replacing an existing character is much less error-prone:
+swap the array contents, the `DATA` strings and the mouth addresses, and nothing
+else moves.
 
 ---
 
@@ -409,31 +341,34 @@ its balloons in the JSON, update the mouth addresses, and nothing else moves.
 
 ## Backgrounds
 
-Four exist: `art/midl.png` (mid alley), `dock`, `citi` (city) and `spac` (space
-port).
+Four exist: `midl()` (mid alley), `dock()`, `citi()` (city), `spac()` (space
+port). Each is:
+
+```basic
+DIM midl(896) AS BYTE =#{...}
+```
 
 | Property | Value |
 | --- | --- |
-| PNG size | 128 × 28 px |
-| Tile grid | **64 wide × 14 rows** |
-| Indexing in the source | `midl(x + z + y*64)` |
+| Size | 896 bytes |
+| Width | **64 tiles** |
+| Height | **14 tiles** |
+| Indexing | `midl(x + z + y*64)` |
 
 The screen is 32 columns, so a background is **twice as wide as the display**.
 `z` is the horizontal window offset — that's what makes panning possible. Draw
 with the full 64 columns in mind: the demo shows either a static window into it
 or scrolls across the whole thing.
 
-To change a background, repaint its PNG. To add a fifth you would also extend
-the `sc=RND(4)` chooser and add matching `IF sc=4 THEN POKE ...` lines to each
-of the three draw loops (still, scroll-left, scroll-right), plus the `STRIDES`
-and manifest steps above.
+To swap a background, replace the 896 bytes. To add a fifth you'd extend the
+`sc=RND(4)` chooser and add matching `IF sc=4 THEN POKE ...` lines in each of
+the three draw loops (still, scroll-left, scroll-right).
 
 ## Props
 
-Two exist, chosen by `z=RND(2)` in `object:` — a briefcase (`art/suitA.png`
-closed, `art/suitB.png` open) and a safe (`art/safe.png`). Unlike the portraits
-they do not share a size: `suitA` is 32 tiles wide, `suitB` 14, `safe` 19. Add
-one and the loop bounds in `object:` have to match your art.
+Two exist, chosen by `z=RND(2)` in `object:` — a briefcase and a safe. They use
+their own dimensions (`suitA` is 32 wide, `safe` is 19 wide), so if you add one,
+match the loop bounds to your art.
 
 There's a conspicuous run of blank lines before the `RETURN` in `object:` where
 the author clearly intended more.
@@ -461,11 +396,11 @@ lit row or the dark row of the same array. Varying the `WAIT` between passes
 
 Two balloon types, and the difference is only three `POKE`s.
 
-![Speech balloon](../original/figures/balloon-speech.png)
+![Speech balloon](figures/balloon-speech.png)
 
 *Two characters present — a solid stepped tail. Someone is speaking.*
 
-![Thought balloon](../original/figures/balloon-thought.png)
+![Thought balloon](figures/balloon-thought.png)
 
 *One character alone — separate dots trailing up. They're thinking.*
 
@@ -511,13 +446,11 @@ Full details in the [README](../README.md#building).
 
 ## Checklist before you call it done
 
-- [ ] `make dialogue-lint` is clean — it checks the balloon count, the 13-char
-      limit, empty strings and stray quotes for you
+- [ ] Every character has exactly 10 `DATA` lines of 4 strings
+- [ ] No string exceeds 13 characters
+- [ ] Single-line balloons use `" "`, not `""`
 - [ ] Every redrawn character has its mouth addresses updated
-- [ ] Every edited PNG is still **indexed** and still its original size
-- [ ] Any new array is in `tools/art.py`'s `STRIDES` table *and* in
-      `art/manifest.json`
-- [ ] `make run` — you have watched it, not just built it
+- [ ] Portrait arrays are laid out 16 wide, 15 visible
 - [ ] Read your lines in a random order out loud — do any two contradict?
 
 ---
