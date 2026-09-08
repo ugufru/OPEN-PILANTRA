@@ -24,7 +24,7 @@ def render(jsonl_text):
     return TEMPLATE.replace("__SNAPSHOT__", snapshot), len(issues)
 
 
-TEMPLATE = """<!doctype html>
+TEMPLATE = r"""<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">

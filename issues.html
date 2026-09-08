@@ -125,7 +125,7 @@ footer { display: flex; gap: .4rem; flex-wrap: wrap; align-items: center;
   var STATUS_ORDER = ['open', 'in-progress', 'done', 'deferred', 'wontfix'];
   var PRIORITY_ORDER = ['high', 'medium', 'low'];
   // Longest alternative first: "jsonl" must win over "json".
-  var PATH_RE = /((?:[\w.-]+\/)*[\w.-]+\.(?:jsonl|json|bas|py|md|html|dsk|png))(:\d+(?:-\d+)?)?/g;
+  var PATH_RE = /\b((?:[\w.-]+\/)*[\w.-]+\.(?:jsonl|json|bas|py|md|html|dsk|png))(:\d+(?:-\d+)?)?/g;
 
   var issues = [];
   var active = { status: [], type: [], tag: [] };
@@ -146,11 +146,8 @@ footer { display: flex; gap: .4rem; flex-wrap: wrap; align-items: center;
   }
 
   function markup(text) {
-    return String(text).split('
-
-').map(function (para) {
-      return '<p>' + esc(para).replace(PATH_RE, '<code>$&</code>').replace(/
-/g, '<br>') + '</p>';
+    return String(text).split('\n\n').map(function (para) {
+      return '<p>' + esc(para).replace(PATH_RE, '<code>$&</code>').replace(/\n/g, '<br>') + '</p>';
     }).join('');
   }
 
@@ -313,8 +310,7 @@ footer { display: flex; gap: .4rem; flex-wrap: wrap; align-items: center;
       return r.text();
     })
     .then(function (text) {
-      draw(text.split('
-').filter(function (l) { return l.trim(); }).map(JSON.parse));
+      draw(text.split('\n').filter(function (l) { return l.trim(); }).map(JSON.parse));
     })
     .catch(function () {
       draw(snapshot(), 'Showing the snapshot saved when this page was last built, because the ' +
