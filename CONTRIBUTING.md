@@ -84,10 +84,14 @@ program, show that: compile both ways and diff the generated assembly with
 `; L:n` comments stripped. That is how the JSON and PNG pipelines were
 validated, and it caught things a screenshot never would.
 
-**Screen checks need a human.** There is no scripted way to read the emulated
-display (issue 14, wontfix). Anything that can only be confirmed by watching it
-run has to be confirmed by the maintainer — so say plainly what you did and
-didn't verify.
+**Screen checks can be captured, but not judged, by a script.** The emulator
+window can be grabbed from a script: `screencapture -x -o -l <window_id>
+out.png` produces the same 640x512 frame as the shots in `docs/screens/`, and
+issue 7 records the full procedure for sampling a running demo. So "there was
+no way to check" is not a reason to skip visual verification. What a script
+still cannot do is read the display as text (issue 14) or tell you whether what
+it captured is correct, so anything that turns on how it looks is confirmed by
+the maintainer. Say plainly what you did and didn't verify.
 
 ## Finishing
 - An issue isn't `done` until the change is tested and confirmed by a maintainer.

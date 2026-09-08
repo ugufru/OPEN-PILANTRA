@@ -212,6 +212,8 @@ and Shonuf.*
 | The `ugb()` splash. The horizontal colour bands are pure SG4 — read the colour nibble changing by row. | Minhocossul and Isac. Two 15×10 portraits, drawn once, then only the mouth cells move. |
 | ![Solo scene mid-draw](docs/screens/solo-thought.png) | ![Title card](docs/screens/title.png) |
 | Caught mid-draw: Elektra painting in tile by tile while Isac is already up. The draw is visibly progressive, and it reads as a deliberate wipe. | The `til()` title, 14×7 cells of solid white. |
+| ![Speech bubble](docs/screens/dialogue-bubble.png) | ![Scrolling cutscene](docs/screens/cutscene-scroll.png) |
+| A finished balloon: the box is solid character 143 with a stepped tail, and only the speaker's mouth cells move under it, six cycles at 150ms. | The dock skyline, caught in the 2500ms hold at the end of an `HSCROLL` run. Only one cutscene in three scrolls at all. |
 
 ### What's on the disk
 
@@ -259,9 +261,6 @@ are now testable.
 - **The scene counter counts iterations, not scenes** — see
   [Scene director](original/README.md#scene-director-lines-470490). Open as a question rather than
   a bug, pending the author's intent.
-- **Reference captures are incomplete.** `docs/screens/` is missing a
-  speech-bubble frame and an `HSCROLL` cutscene, the two most illustrative
-  shots.
 - **`make toolchain` is only exercised on macOS.** It has been run end to end
   from an empty `.toolchain/` on macOS (arm64). Linux and Windows have not.
 
