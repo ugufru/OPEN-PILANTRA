@@ -6,7 +6,8 @@
 #   make run-en      boot the shipped OPIL-EN.dsk
 #   make run-br      boot the shipped OPIL_BR.dsk
 #   make compare     structural diff of build/OPIL.dsk against OPIL-EN.dsk
-#   make clean       remove build/
+#   make issues      render issues.jsonl to a browsable issues.html
+#   make clean       remove build/ and issues.html
 #   make distclean   also remove the toolchain
 #
 # The default target never writes to the committed .dsk images.
@@ -51,7 +52,7 @@ else
 endif
 
 .PHONY: all run run-en run-br compare clean distclean toolchain deps \
-        dialogue-extract dialogue-lint art-extract
+        dialogue-extract dialogue-lint art-extract issues
 
 all: $(DSK)
 
@@ -83,6 +84,18 @@ $(GENART): $(wildcard art/*.png) art/manifest.json tools/art.py
 art-extract:                            ## re-derive the PNGs from the .bas
 	python3 tools/art.py extract $(SOURCE) $(ART)
 
+# --- issue tracker ----------------------------------------------------------
+
+# issues.jsonl stays the source of truth; issues.html is a generated view of it
+# and is gitignored. Re-run this after editing the tracker.
+ISSUES     := issues.jsonl
+ISSUESHTML := issues.html
+
+issues: $(ISSUESHTML)                   ## browsable view of issues.jsonl
+
+$(ISSUESHTML): $(ISSUES) tools/issues.py
+	python3 tools/issues.py render $(ISSUES) $@
+
 $(DSK): $(BUILDSRC) $(GENDLG) $(GENART) | $(UGBC) $(ASM6809) $(DECB)
 	@mkdir -p $(BUILD)
 	$(UGBC) -C $(ASM6809) -b $(DECB) -o $@ -O dsk $(BUILDSRC)
@@ -109,7 +122,7 @@ compare: $(DSK)
 	@echo "--- built directory ---";   od -A d -c -j 78848 -N 160 $(DSK)      | grep -v '^\*'
 
 clean:
-	rm -rf $(BUILD)
+	rm -rf $(BUILD) $(ISSUESHTML)
 
 distclean: clean
 	rm -rf .toolchain
