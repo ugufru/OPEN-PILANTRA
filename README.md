@@ -78,7 +78,7 @@ what's missing via Homebrew.
 
 ```sh
 make deps         # macOS only: autoconf, automake, libtool, bison, gnu-sed
-make toolchain    # one-time, slow (~30 min): builds ugbc.coco, asm6809, decb
+make toolchain    # one-time: builds ugbc.coco, asm6809, decb (a few minutes)
 make              # compiles original/OPIL-source.bas -> build/OPIL.dsk
 make run          # compiles, then boots the result in XRoar
 make compare      # structural diff of the build against original/OPIL-EN.dsk
@@ -87,12 +87,13 @@ make distclean    # also remove the toolchain
 ```
 
 `make` never writes to the committed `.dsk` images; output goes to `build/`.
-The toolchain lands in `.toolchain/` (~800 MB, gitignored).
+The toolchain lands in `.toolchain/` (~800 MB, gitignored). Most of that is the
+git clone, so how long `make toolchain` takes depends mostly on your network and
+machine: about two and a half minutes on an arm64 Mac on a fast connection, and
+correspondingly longer on a slow one.
 
-> **Caveat:** `make toolchain` has not yet been run end-to-end from an empty
-> `.toolchain/`. Every step was executed and verified by hand while working the
-> build out, and the compiler it produces demonstrably works — but the target as
-> a single command is untested. See issue #9.
+`make toolchain` has been run end-to-end from an empty `.toolchain/` on macOS
+(arm64). See issue #9 for what that run found and fixed.
 
 On Linux the Darwin-specific workarounds below are skipped automatically; you
 need `autoconf`, `automake`, `libtool`, `bison` (≥3) and `flex` from your
@@ -252,17 +253,17 @@ are now testable.
   scene categories the structure implies that were never written.
 - **`object:` has room for more props.** Only the briefcase and safe exist;
   there's a conspicuous block of blank lines where more were planned.
-- **Portrait arrays are over-dimensioned.** `DIM mano(176)` etc., but the draw
-  loop only reaches index `14+9*16 = 158`.
+- **Portrait arrays carry a spare row and column.** `DIM mano(176)` etc. is a
+  16x11 grid, but the draw loop only reaches index `14+9*16 = 158`. Left as
+  headroom rather than trimmed (#5).
 - **The scene counter counts iterations, not scenes** — see
   [Scene director](original/README.md#scene-director-lines-470490). Open as a question rather than
   a bug, pending the author's intent.
 - **Reference captures are incomplete.** `docs/screens/` is missing a
   speech-bubble frame and an `HSCROLL` cutscene, the two most illustrative
   shots.
-- **`make toolchain` is unverified from a clean clone.** Every step was run by
-  hand and the resulting compiler works, but the target itself has never been
-  executed end-to-end against an empty `.toolchain/`.
+- **`make toolchain` is only exercised on macOS.** It has been run end to end
+  from an empty `.toolchain/` on macOS (arm64). Linux and Windows have not.
 
 ## Credits
 

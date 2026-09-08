@@ -86,6 +86,8 @@ art-extract:                            ## re-derive the PNGs from the .bas
 $(DSK): $(BUILDSRC) $(GENDLG) $(GENART) | $(UGBC) $(ASM6809) $(DECB)
 	@mkdir -p $(BUILD)
 	$(UGBC) -C $(ASM6809) -b $(DECB) -o $@ -O dsk $(BUILDSRC)
+	@# ugbc exits 0 even when its assembler or linker step failed, so check.
+	@test -s $@ || { echo "ugbc produced no $@: see the errors above" >&2; exit 1; }
 	@echo "built $@ ($$(wc -c < $@) bytes)"
 
 run: $(DSK)
@@ -115,8 +117,11 @@ distclean: clean
 # --- toolchain --------------------------------------------------------------
 #
 # ugBASIC ships prebuilt Linux x86-64 binaries and objects inside the ToolShed
-# module. They are purged below so the native compiler rebuilds them; without
-# that, decb links as an ELF and ugbc fails with the unhelpful message
+# module, decb among them. Because decb is committed, it exists the moment the
+# submodule is checked out, and make would then treat $(DECB) as already up to
+# date and never run its rule at all. The clone recipe therefore deletes it, and
+# the $(DECB) rule purges the stale objects before rebuilding. Without both, the
+# ELF binary is handed to ugbc, which fails with the unhelpful message
 # "The compilation of assembly program failed. Please use option '-I'".
 
 toolchain: $(UGBC) $(ASM6809) $(DECB)
@@ -140,6 +145,8 @@ $(TOOLCHAIN):
 	    src/targets/common/serialize.c \
 	    src/hw/6809.c src/hw/6309.c src/hw/6502.c src/hw/z80.c \
 	    src/hw/8086.c src/hw/sm83.c
+	@# Drop ToolShed's committed Linux decb so the $(DECB) rule actually fires.
+	rm -f $(DECB)
 
 $(UGBC): | $(TOOLCHAIN)
 	cd $(TOOLCHAIN)/ugbc && PATH="$(TOOL_PATH)" $(MAKE) compiler target=coco

@@ -482,7 +482,7 @@ that work as interior monologue rather than dialogue.
 # 5. Build, test, repeat
 
 ```sh
-make toolchain    # once, ~30 min — builds ugbc.coco, asm6809, decb
+make toolchain    # once, a few minutes: builds ugbc.coco, asm6809, decb
 make run          # compile and boot in XRoar
 ```
 
