@@ -5,9 +5,13 @@ issues.jsonl stays the source of truth. This only ever reads it.
 
     render  <jsonl> <out.html>      the browsable view
 
-The output has no external dependencies: the issue data is embedded as JSON, so
-the page works from file:// with no server and no network. It is generated, so
-it is gitignored; run `make issues` again after editing the tracker.
+The output has no external dependencies and reads nothing at runtime: each issue
+is rendered into the markup here, so the page works from file:// with no server
+and no network. A fetch of a local .jsonl would be blocked by CORS, which is why
+the data is baked in rather than loaded.
+
+The page is committed, so it can be read from a clone. That means it can fall
+behind: run `make issues` after editing the tracker and commit the two together.
 """
 
 import html
@@ -23,7 +27,7 @@ PRIORITY_ORDER = ["high", "medium", "low"]
 
 # `original/OPIL-source.bas:471-492` and bare `tools/art.py` both get linked to
 # nothing, but they read as code and are worth setting in a monospace face.
-PATH_RE = re.compile(r"\b((?:[\w.-]+/)*[\w.-]+\.(?:bas|py|json|md|jsonl|html|dsk|png))(:\d+(?:-\d+)?)?")
+PATH_RE = re.compile(r"\b((?:[\w.-]+/)*[\w.-]+\.(?:jsonl|json|bas|py|md|html|dsk|png))(:\d+(?:-\d+)?)?")
 ISSUE_RE = re.compile(r"\bissues?\s+(\d+(?:\s*,\s*\d+)*(?:\s+and\s+\d+)?)", re.I)
 
 
