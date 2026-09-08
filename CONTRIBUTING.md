@@ -93,6 +93,24 @@ still cannot do is read the display as text (issue 14) or tell you whether what
 it captured is correct, so anything that turns on how it looks is confirmed by
 the maintainer. Say plainly what you did and didn't verify.
 
+**A page is not tested until its JavaScript has run.** `issues.html` builds,
+serves and returns HTTP 200 whether or not its script works, so none of those
+things are evidence. Render it and look at the DOM:
+
+```sh
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+  --headless=new --disable-gpu --user-data-dir=/tmp/c \
+  --virtual-time-budget=5000 --dump-dom http://127.0.0.1:8000/issues.html
+```
+
+Count what should be there, `<article class="card">` per issue, rather than
+skimming for the absence of errors. Check both paths: served over HTTP the page
+reads `issues.jsonl` live and shows no fallback note, while from `file://` the
+fetch is blocked and the inlined snapshot renders with the note visible. That
+note is what tells the two apart. This rule exists because the page shipped
+once with a syntax error that made it render nothing at all, and every check
+short of running it had passed.
+
 ## Finishing
 - An issue isn't `done` until the change is tested and confirmed by a maintainer.
 - Resolve related issues before pushing.
