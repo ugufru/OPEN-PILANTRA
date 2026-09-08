@@ -7,7 +7,7 @@
 #   make run-br      boot the shipped OPIL_BR.dsk
 #   make compare     structural diff of build/OPIL.dsk against OPIL-EN.dsk
 #   make issues      render issues.jsonl to a browsable issues.html
-#   make clean       remove build/ and issues.html
+#   make clean       remove build/
 #   make distclean   also remove the toolchain
 #
 # The default target never writes to the committed .dsk images.
@@ -86,8 +86,9 @@ art-extract:                            ## re-derive the PNGs from the .bas
 
 # --- issue tracker ----------------------------------------------------------
 
-# issues.jsonl stays the source of truth; issues.html is a generated view of it
-# and is gitignored. Re-run this after editing the tracker.
+# issues.jsonl stays the source of truth; issues.html is a generated view of it.
+# The view IS committed, so it can be read from a clone without running make:
+# re-run this after editing the tracker and commit both together.
 ISSUES     := issues.jsonl
 ISSUESHTML := issues.html
 
@@ -122,7 +123,7 @@ compare: $(DSK)
 	@echo "--- built directory ---";   od -A d -c -j 78848 -N 160 $(DSK)      | grep -v '^\*'
 
 clean:
-	rm -rf $(BUILD) $(ISSUESHTML)
+	rm -rf $(BUILD)
 
 distclean: clean
 	rm -rf .toolchain
