@@ -110,18 +110,23 @@ on the shipped images, which is how we know that's how they were built.
 ### Toolchain notes
 
 ugBASIC publishes binaries for Linux and Windows only, so on macOS the Makefile
-builds the compiler from source. Four things bite on Darwin, all handled
+builds the compiler from source. The Makefile builds a pinned ugBASIC commit,
+`UGBASIC_REF`, currently `3408443` from `main` (2026-09-21; ugbc still reports
+itself as v1.18.1). To move to a newer one, change `UGBASIC_REF` and run
+`make distclean toolchain`; `make toolchain` warns if `.toolchain/` is at a
+different commit from the pin.
+
+That commit fixed three Darwin problems upstream (the `encrypt()` symbol clash,
+BSD `sed -i`, and the bison path; ugbc now builds its bundled bison on macOS),
+so the Makefile no longer patches ugbc's sources. What remains, handled
 automatically:
 
-- **macOS ships bison 2.3**; ugbc's grammar needs bison 3. Homebrew's is put
-  ahead of it on `PATH` rather than installed over the system one.
-- **ugbc's makefile uses GNU `sed -i`**, which BSD sed rejects. `gsed` is used
-  instead.
-- **`encrypt()` collides.** ugbc declares its own `encrypt()`; Darwin's
-  `unistd.h` already declares a POSIX one with a different signature. The
-  Makefile renames ugbc's symbol to `ugbc_encrypt`. Note that a `-Dencrypt=…`
-  define does *not* work — it renames the system declaration too, and they
-  collide again.
+- **macOS ships bison 2.3.** ugbc no longer cares, but asm6809 runs `bison`
+  from `PATH` on its own `grammar.y`, and 2.3 rejects it (`grammar.y:66.27-37:
+  syntax error, unexpected type`). Homebrew's bison is put ahead of the system
+  one on `PATH` rather than installed over it.
+- **ugbc's makefile calls `gsed` on Darwin**, so Homebrew's `gnu-sed` must be
+  installed (`make deps` does it).
 - **ugBASIC ships prebuilt Linux x86-64 binaries and objects** inside its
   ToolShed module, and its makefiles treat them as up to date. They're purged so
   the native compiler rebuilds them. (This one isn't strictly Darwin-specific —

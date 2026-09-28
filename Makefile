@@ -21,6 +21,10 @@ ASM6809     := $(TOOLCHAIN)/modules/asm6809/src/asm6809
 DECB        := $(TOOLCHAIN)/modules/toolshed/build/unix/decb/decb
 
 UGBASIC_REPO := https://github.com/spotlessmind1975/ugbasic.git
+# The ugBASIC commit the toolchain is built from. Pinned so a fresh clone gets
+# the compiler this project was verified against, not whatever main is today.
+# To move it: change this, then 'make distclean toolchain'.
+UGBASIC_REF  := 3408443afaed163e0200e5a91b5212f8add18ee3
 
 # XRoar. coco2bus is NTSC: the WAIT pacing in the source assumes 60 Hz, so a
 # PAL profile (coco2b) runs everything ~17% slow. -cart rsdos is mandatory.
@@ -34,11 +38,9 @@ UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
   BREW       := $(shell brew --prefix 2>/dev/null)
   TOOL_PATH  := $(BREW)/opt/bison/bin:$(BREW)/opt/gnu-sed/libexec/gnubin:$(PATH)
-  SED        := gsed
   BREW_DEPS  := autoconf automake libtool bison gnu-sed
 else
   TOOL_PATH  := $(PATH)
-  SED        := sed
   BREW_DEPS  :=
 endif
 
@@ -83,6 +85,11 @@ distclean: clean
 # "The compilation of assembly program failed. Please use option '-I'".
 
 toolchain: $(UGBC) $(ASM6809) $(DECB)
+	@have=$$(git -C $(TOOLCHAIN) rev-parse HEAD); \
+	 if [ "$$have" != "$(UGBASIC_REF)" ]; then \
+	   echo "warning: $(TOOLCHAIN) is at $$have, not the pinned $(UGBASIC_REF)." >&2; \
+	   echo "         run 'make distclean toolchain' to rebuild it." >&2; \
+	 fi
 	@echo "toolchain ready"
 
 deps:
@@ -92,17 +99,17 @@ else
 	@echo "install autoconf, automake, libtool, bison (>=3) and flex via your package manager"
 endif
 
+# Fetched into a .tmp directory and renamed only once complete, so an
+# interrupted fetch cannot leave a half-populated $(TOOLCHAIN) that make would
+# then treat as done.
 $(TOOLCHAIN):
-	@mkdir -p $(dir $(TOOLCHAIN))
-	git clone --depth 1 $(UGBASIC_REPO) $(TOOLCHAIN)
-	cd $(TOOLCHAIN) && git submodule update --init --depth 1
-	@# Darwin's unistd.h already declares encrypt(); ugbc declares its own with
-	@# a different signature. Rename ugbc's so the two stop colliding.
-	cd $(TOOLCHAIN)/ugbc && $(SED) -i 's/\bencrypt(/ugbc_encrypt(/g' \
-	    src/ugbc.h src/ugbc.y src/targets/common/encrypt.c \
-	    src/targets/common/serialize.c \
-	    src/hw/6809.c src/hw/6309.c src/hw/6502.c src/hw/z80.c \
-	    src/hw/8086.c src/hw/sm83.c
+	rm -rf $(TOOLCHAIN).tmp && mkdir -p $(TOOLCHAIN).tmp
+	cd $(TOOLCHAIN).tmp && git init -q \
+	    && git remote add origin $(UGBASIC_REPO) \
+	    && git fetch --depth 1 origin $(UGBASIC_REF) \
+	    && git checkout -q FETCH_HEAD \
+	    && git submodule update --init --depth 1
+	mv $(TOOLCHAIN).tmp $(TOOLCHAIN)
 
 $(UGBC): | $(TOOLCHAIN)
 	cd $(TOOLCHAIN)/ugbc && PATH="$(TOOL_PATH)" $(MAKE) compiler target=coco
